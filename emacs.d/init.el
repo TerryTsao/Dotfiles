@@ -20,11 +20,6 @@
   (find-file "~/.emacs.d/init.el")
   )
 
-(defun cd4ever/load-init()
-  (interactive)
-  (load-file "~/.emacs.d/init.el")
-  )
-
 (defun cd4ever/planning()
   (interactive)
   (find-file "~/.org/todo.org")
@@ -33,7 +28,8 @@
 ;;;;;;;;;;;;;;;;;; The EVIL rebellion ;;;;;;;;;;;;;;;;;;;;;;;
 ;; evil mode always run
 (use-package evil
-  :ensure t)
+  :ensure t
+  )
 (require 'evil)
 (evil-mode 1)
 
@@ -44,12 +40,13 @@
 
 (evil-leader/set-leader "<SPC>")
 (evil-leader/set-key
-  "e" 'find-file
-  "b" 'switch-to-buffer
-  "r" 'recentf-open-files
-  "init" 'cd4ever/open-init
-  "ll" 'cd4ever/load-init
+  "ee" 'find-file
+  "bb" 'switch-to-buffer
+  "bs" 'switch-to-buffer
+  "rf" 'recentf-open-files
+  "ii" 'cd4ever/open-init
   "todo" 'cd4ever/planning
+  "rr" 'eval-last-sexp
   )
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -79,6 +76,17 @@
   :ensure t)
 (use-package solarized-theme
   :ensure t)
+(use-package org
+  :config
+  (unbind-key "M-h" org-mode-map)
+  (add-hook 'evil-mode-hook
+	    (lambda() (setq evil-auto-indent nil)))
+  :bind
+  (("M-k" . org-metaup)
+   ("M-j" . org-metadown)
+   ("M-h" . org-metaleft)
+   ("M-l" . org-metaright))
+  )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (use-package company
@@ -148,3 +156,6 @@ COMMAND, ARG, IGNORED are the arguments required by the variable
 
 ;; Set font size
 (set-face-attribute 'default nil :height 170)
+
+;; Fullscreen on startup
+(add-to-list 'default-frame-alist '(fullscreen . maximized))
