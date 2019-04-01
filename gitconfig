@@ -1,0 +1,31 @@
+[core]
+	autocrlf = input
+	editor = vim
+    pager = more
+	excludesfile = /home/xiaoxiangcao/.gitignore
+
+[user]
+	name = Xiaoxiang Cao
+	email = xiaoxiangcao@deepmotion.ai
+
+[alias]
+	tree = log --graph --decorate --pretty=oneline --abbrev-commit
+	treea = log --graph --decorate --pretty=oneline --abbrev-commit --all
+	cm = commit
+	cmm = commit -m 
+	cma = commit -a
+	cmam = commit -a -m
+	st = status
+	stt = status
+	co = checkout
+	br = branch
+    cp = cherry-pick
+    sb = subtree
+
+[color]
+	ui = auto
+
+[rerere]
+	enabled = true
+[push]
+	default = simple
