@@ -65,6 +65,7 @@ COMPLETION_WAITING_DOTS="true"
 plugins=(
   git
   docker
+  docker-compose
   pip
   vi-mode
   vundle
@@ -73,6 +74,7 @@ plugins=(
   ssh-agent
   colored-man-pages
   history-substring-search
+  zsh-syntax-highlighting
 )
 
 source $ZSH/oh-my-zsh.sh

@@ -47,6 +47,8 @@ values."
      markdown
      org
      gtags
+     protobuf
+     asm
      cscope
      yaml
      ;; ycmd
@@ -76,13 +78,14 @@ values."
    ;; packages, then consider creating a layer. You can also put the
    ;; configuration in `dotspacemacs/user-config'.
    dotspacemacs-additional-packages '(
-                                      cuda-mode
-                                      protobuf-mode
+                                      groovy-mode
                                       treemacs-icons-dired
                                       json-mode
                                       opencl-mode
                                       dockerfile-mode
+                                      pdf-tools
                                       sunshine
+                                      exec-path-from-shell
                                       )
    ;; A list of packages that cannot be updated.
    dotspacemacs-frozen-packages '()
@@ -105,9 +108,12 @@ You should not put any user code in there besides modifying the variable
 values."
   (setq configuration-layer-elpa-archives
         '(
-          ("melpa" . "/data/terrytsao/software/elpaMirror/melpa")
-          ("gnu"   . "/data/terrytsao/software/elpaMirror/gnu")
-          ("org"   . "/data/terrytsao/software/elpaMirror/org")
+          ("melpa-cn" . "http://mirrors.tuna.tsinghua.edu.cn/elpa/melpa/")
+          ("org-cn"   . "http://mirrors.tuna.tsinghua.edu.cn/elpa/org/")
+          ("gnu-cn"   . "http://mirrors.tuna.tsinghua.edu.cn/elpa/gnu/")
+          ;; ("melpa" . "/data/terrytsao/software/elpamirror/melpa")
+          ;; ("gnu"   . "/data/terrytsao/software/elpamirror/gnu")
+          ;; ("org"   . "/data/terrytsao/software/elpamirror/org")
           ))
   ;; This setq-default sexp is an exhaustive list of all the supported
   ;; spacemacs settings.
@@ -355,9 +361,9 @@ you should place your code here."
   (setq powerline-default-separator 'arrow)
   (setq company-minimum-prefix-length 1)
   ;; (company-tng-configure-default)
-  (setq ycmd-server-command '("python3" "/home/xiaoxiangcao/.vim/bundle/YouCompleteMe/third_party/ycmd/ycmd"))
-  (set-variable 'ycmd-extra-conf-whitelist '("~/Documents/myWork/dm_trt_deploy/*"))
-  (set-variable 'ycmd-global-config "/home/xiaoxiangcao/.vim/bundle/YouCompleteMe/third_party/ycmd/cpp/ycm/.ycm_extra_conf.py")
+  ;; (setq ycmd-server-command '("python3" "/home/xiaoxiangcao/.vim/bundle/YouCompleteMe/third_party/ycmd/ycmd"))
+  ;; (set-variable 'ycmd-extra-conf-whitelist '("~/Documents/myWork/dm_trt_deploy/*"))
+  ;; (set-variable 'ycmd-global-config "/home/xiaoxiangcao/.vim/bundle/YouCompleteMe/third_party/ycmd/cpp/ycm/.ycm_extra_conf.py")
   (spacemacs/diminish-undo 'company-mode)
   ;; (add-hook 'emacs-lisp-mode-hook
   ;;           (lambda ()
@@ -375,11 +381,11 @@ you should place your code here."
                (and
                 (eval 'dc4ever/is-view)
                 (read-only-mode 1))))
-  (add-hook 'cuda-mode-hook
-            '(lambda nil
-               (and
-                (eval 'dc4ever/is-view)
-                (read-only-mode 1))))
+  ;; (add-hook 'cuda-mode-hook
+  ;;           '(lambda nil
+  ;;              (and
+  ;;               (eval 'dc4ever/is-view)
+  ;;               (read-only-mode 1))))
   (add-hook 'text-mode-hook
             '(lambda nil
                (and
@@ -397,10 +403,15 @@ you should place your code here."
               (counsel-projectile ivy-current-prefix-arg)))))
       (counsel-projectile-switch-project-by-name project))
     )
+  (defun dc4ever/org()
+    (interactive)
+    (find-file "/home/xiaoxiangcao/.org/todo.org"))
   (treemacs-icons-dired-mode)
+  (setq org-present-text-scale 3)
   (spacemacs/set-leader-keys "pf" 'counsel-git)
   (spacemacs/set-leader-keys "or" 'lisp-state-eval-sexp-end-of-line)
   (spacemacs/set-leader-keys "ow" 'sunshine-forecast)
+  (spacemacs/set-leader-keys "ot" 'dc4ever/org)
   (spacemacs/toggle-highlight-long-lines-globally-on)
   (defun spacemacs//pyenv-mode-set-local-version ()
     (interactive)
@@ -411,6 +422,16 @@ you should place your code here."
       )
     )
   (add-hook 'sunshine-mode-hook 'evil-emacs-state)
+  (add-to-list 'auto-mode-alist '("\\.ccls\\'" . shell-script-mode))
+  (add-to-list 'auto-mode-alist '("\\.cu\\'" . c++-mode))
+  ;; (spacemacs|define-jump-handlers cuda-mode)
+  ;; (add-hook 'cuda-mode-hook 'lsp)
+  ;; (add-hook 'cuda-mode-hook 'linum-mode)
+  ;; (add-hook 'cuda-mode-hook 'electric-pair-mode)
+  (add-hook 'org-mode-hook '(lambda () (setq-local evil-auto-indent nil)))
+  (add-hook 'pdf-view-mode-hook 'spacemacs/toggle-mode-line)
+  (pdf-tools-install)
+  (exec-path-from-shell-initialize)
   )
 
 (defun dotspacemacs/emacs-custom-settings ()
@@ -423,9 +444,18 @@ This function is called at the very end of Spacemacs initialization."
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
+ '(exec-path-from-shell-check-startup-files nil)
+ '(org-link-frame-setup
+   (quote
+    ((vm . vm-visit-folder-other-frame)
+     (vm-imap . vm-visit-imap-folder-other-frame)
+     (gnus . org-gnus-no-new-news)
+     (file . find-file)
+     (wl . wl-other-frame))))
  '(package-selected-packages
    (quote
-    (sunshine dockerfile-mode lsp-ui lsp-python cquery company-lsp ccls lsp-mode zeal-at-point yasnippet-snippets yapfify yaml-mode xterm-color xcscope ws-butler writeroom-mode winum which-key wgrep volatile-highlights vi-tilde-fringe uuidgen use-package unfill treemacs-projectile treemacs-icons-dired treemacs-evil toc-org symon string-inflection spaceline-all-the-icons smex smeargle shell-pop restart-emacs request rainbow-delimiters pyvenv pytest pyenv-mode py-isort protobuf-mode popwin pippel pipenv pip-requirements persp-mode pcre2el password-generator paradox overseer orgit org-projectile org-present org-pomodoro org-mime org-download org-bullets org-brain opencl-mode open-junk-file nameless mwim multi-term move-text mmm-mode markdown-toc magit-svn magit-gitflow macrostep lorem-ipsum live-py-mode link-hint json-mode ivy-yasnippet ivy-xref ivy-rtags ivy-purpose ivy-hydra indent-guide hungry-delete htmlize hl-todo highlight-parentheses highlight-numbers highlight-indentation helm-make google-translate google-c-style golden-ratio gnuplot gitignore-templates gitignore-mode gitconfig-mode gitattributes-mode git-timemachine git-messenger git-link gh-md ggtags fuzzy font-lock+ flx-ido fill-column-indicator fancy-battery eyebrowse expand-region evil-visualstar evil-visual-mark-mode evil-unimpaired evil-tutor evil-surround evil-org evil-numbers evil-nerd-commenter evil-matchit evil-magit evil-lisp-state evil-lion evil-indent-plus evil-iedit-state evil-goggles evil-exchange evil-escape evil-ediff evil-cleverparens evil-args evil-anzu eval-sexp-fu eshell-z eshell-prompt-extras esh-help elisp-slime-nav editorconfig dumb-jump dotenv-mode doom-modeline disaster diminish define-word cython-mode cuda-mode counsel-projectile counsel-gtags counsel-dash company-statistics company-rtags company-c-headers company-anaconda column-enforce-mode cmake-mode cmake-ide clean-aindent-mode clang-format centered-cursor-mode auto-yasnippet auto-highlight-symbol auto-compile aggressive-indent ace-link ac-ispell)))
+    (pdf-tools groovy-mode gradle-mode exec-path-from-shell sunshine dockerfile-mode lsp-ui lsp-python cquery company-lsp ccls lsp-mode zeal-at-point yasnippet-snippets yapfify yaml-mode xterm-color xcscope ws-butler writeroom-mode winum which-key wgrep volatile-highlights vi-tilde-fringe uuidgen use-package unfill treemacs-projectile treemacs-icons-dired treemacs-evil toc-org symon string-inflection spaceline-all-the-icons smex smeargle shell-pop restart-emacs request rainbow-delimiters pyvenv pytest pyenv-mode py-isort protobuf-mode popwin pippel pipenv pip-requirements persp-mode pcre2el password-generator paradox overseer orgit org-projectile org-present org-pomodoro org-mime org-download org-bullets org-brain opencl-mode open-junk-file nameless mwim multi-term move-text mmm-mode markdown-toc magit-svn magit-gitflow macrostep lorem-ipsum live-py-mode link-hint json-mode ivy-yasnippet ivy-xref ivy-rtags ivy-purpose ivy-hydra indent-guide hungry-delete htmlize hl-todo highlight-parentheses highlight-numbers highlight-indentation helm-make google-translate google-c-style golden-ratio gnuplot gitignore-templates gitignore-mode gitconfig-mode gitattributes-mode git-timemachine git-messenger git-link gh-md ggtags fuzzy font-lock+ flx-ido fill-column-indicator fancy-battery eyebrowse expand-region evil-visualstar evil-visual-mark-mode evil-unimpaired evil-tutor evil-surround evil-org evil-numbers evil-nerd-commenter evil-matchit evil-magit evil-lisp-state evil-lion evil-indent-plus evil-iedit-state evil-goggles evil-exchange evil-escape evil-ediff evil-cleverparens evil-args evil-anzu eval-sexp-fu eshell-z eshell-prompt-extras esh-help elisp-slime-nav editorconfig dumb-jump dotenv-mode doom-modeline disaster diminish define-word cython-mode cuda-mode counsel-projectile counsel-gtags counsel-dash company-statistics company-rtags company-c-headers company-anaconda column-enforce-mode cmake-mode cmake-ide clean-aindent-mode clang-format centered-cursor-mode auto-yasnippet auto-highlight-symbol auto-compile aggressive-indent ace-link ac-ispell)))
+ '(pdf-view-resize-factor 1.05)
  '(sunshine-appid "2737f04d3df89d1b08bb95e9424b32b1")
  '(sunshine-location "Beijing,CN")
  '(sunshine-show-icons t)

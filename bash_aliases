@@ -18,7 +18,7 @@ alias wifi='sudo service network-manager restart'
 alias kj='kill `jobs -p`'
 
 # launch eclipse ee
-alias ee='export SWT_GTK3=0; ~/eclipse/eclipse &> /dev/null &'
+# alias ee='export SWT_GTK3=0; ~/eclipse/eclipse &> /dev/null &'
 
 # gradle wrapper
 alias gw='./gradlew'
