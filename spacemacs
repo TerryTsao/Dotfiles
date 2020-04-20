@@ -34,10 +34,15 @@ This function should only modify configuration layer settings."
    dotspacemacs-configuration-layers
    '(
      cmake
-     ;; ivy
-     helm
-     (python :variables python-enable-yapf-format-on-save t
-             python-backend 'anaconda)
+     emoji
+     ivy
+     ;; helm
+     (python :variables
+             python-backend 'anaconda
+             ;; python-backend 'lsp
+             ;; python-lsp-server 'mspyls
+             ;; python-lsp-git-root "/data/terrytsao/software/python-language-server"
+             )
      ;; ----------------------------------------------------------------
      ;; Example of useful layers you may want to use right away.
      ;; Uncomment some layer names and press <SPC f e R> (Vim style) or
@@ -53,6 +58,7 @@ This function should only modify configuration layer settings."
      asm
      cscope
      yaml
+     slack
      treemacs
      (auto-completion :variables
                       auto-completion-return-key-behavior 'complete
@@ -60,10 +66,10 @@ This function should only modify configuration layer settings."
                       auto-completion-complete-with-key-sequence (kbd "jk")
                       auto-completion-complete-with-key-sequence-delay 0.3
                       auto-completion-enable-sort-by-usage nil)
+     dap
      (c-c++ :variables
             c-c++-default-mode-for-headers 'c++-mode
-            c-c++-backend 'lsp
-            c-c++-lsp-server 'ccls
+            c-c++-backend 'lsp-ccls
             c-c++-lsp-enable-semantic-highlight 'rainbow
             )
      ;; themes-megapack
@@ -95,7 +101,6 @@ This function should only modify configuration layer settings."
                                       dockerfile-mode
                                       pdf-tools
                                       sunshine
-                                      helm-ag
                                       exec-path-from-shell
                                       )
 
@@ -121,12 +126,12 @@ before layer configuration.
 It should only modify the values of Spacemacs settings."
   (setq configuration-layer-elpa-archives
         '(
-          ("melpa-cn" . "http://mirrors.tuna.tsinghua.edu.cn/elpa/melpa/")
-          ("org-cn"   . "http://mirrors.tuna.tsinghua.edu.cn/elpa/org/")
-          ("gnu-cn"   . "http://mirrors.tuna.tsinghua.edu.cn/elpa/gnu/")
-          ;; ("melpa" . "/data/terrytsao/software/elpamirror/melpa")
-          ;; ("gnu"   . "/data/terrytsao/software/elpamirror/gnu")
-          ;; ("org"   . "/data/terrytsao/software/elpamirror/org")
+          ;; ("melpa-cn" . "http://mirrors.tuna.tsinghua.edu.cn/elpa/melpa/")
+          ;; ("org-cn"   . "http://mirrors.tuna.tsinghua.edu.cn/elpa/org/")
+          ;; ("gnu-cn"   . "http://mirrors.tuna.tsinghua.edu.cn/elpa/gnu/")
+          ("melpa" . "/data/terrytsao/elpamirror/melpa")
+          ("gnu"   . "/data/terrytsao/elpamirror/gnu")
+          ("org"   . "/data/terrytsao/elpamirror/org")
           ))
   ;; This setq-default sexp is an exhaustive list of all the supported
   ;; spacemacs settings.
@@ -202,7 +207,7 @@ It should only modify the values of Spacemacs settings."
    ;; directory. A string value must be a path to an image format supported
    ;; by your Emacs build.
    ;; If the value is nil then no banner is displayed. (default 'official)
-   dotspacemacs-startup-banner 'official
+   dotspacemacs-startup-banner "~/.config/logo.png"
 
    ;; List of items to show in startup buffer or an association list of
    ;; the form `(list-type . list-size)`. If nil then it is disabled.
@@ -243,7 +248,9 @@ It should only modify the values of Spacemacs settings."
    ;; refer to the DOCUMENTATION.org for more info on how to create your own
    ;; spaceline theme. Value can be a symbol or list with additional properties.
    ;; (default '(spacemacs :separator wave :separator-scale 1.5))
-   dotspacemacs-mode-line-theme '(spacemacs :separator wave :separator-scale 1.5)
+   ;; dotspacemacs-mode-line-theme '(spacemacs :separator wave :separator-scale 1.5)
+   ;; dotspacemacs-mode-line-theme 'spacemacs
+   dotspacemacs-mode-line-theme 'doom
 
    ;; If non-nil the cursor color matches the state color in GUI Emacs.
    ;; (default t)
@@ -404,7 +411,12 @@ It should only modify the values of Spacemacs settings."
    ;;   :size-limit-kb 1000)
    ;; When used in a plist, `visual' takes precedence over `relative'.
    ;; (default nil)
-   dotspacemacs-line-numbers nil
+   dotspacemacs-line-numbers '(:relative t :visual t :disabled-for-modes dired-mode
+                                         doc-view-mode
+                                         markdown-mode
+                                         org-mode
+                                         pdf-view-mode
+                                         text-mode)
 
    ;; Code folding method. Possible values are `evil' and `origami'.
    ;; (default 'evil)
@@ -502,7 +514,7 @@ If you are unsure, try setting them in `dotspacemacs/user-config' first."
   (setq evil-ex-search-vim-style-regexp t)
   (setq evil-search-module 'evil-search)
   (setq evil-magic 'very-magic)
-  (setq-default git-magit-status-fullscreen t)
+  ;; (setq git-magit-status-fullscreen t)
   )
 
 (defun dotspacemacs/user-load ()
@@ -520,8 +532,9 @@ This is the place where most of your configurations should be done. Unless it is
 explicitly specified that a variable should be set before a package is loaded,
 you should place your code here."
   ;; (load-theme 'solarized-dark)
+  (evil-escape-mode -1)
   (global-company-mode)
-  (electric-pair-mode t)
+  ;; (electric-pair-mode t)
   (setq powerline-default-separator 'arrow)
   (setq company-minimum-prefix-length 1)
   ;; (company-tng-configure-default)
@@ -559,29 +572,37 @@ you should place your code here."
                (and
                 (eval 'dc4ever/is-view)
                 (read-only-mode 1))))
-  ;; (require 'counsel-projectile)
-  ;; (defun counsel-projectile-switch-project-action (project)
-  ;;   "Jump to a file or buffer in PROJECT."
-  ;;   (let ((projectile-switch-project-action
-  ;;          (lambda ()
-  ;;            (or
-  ;;             (condition-case nil
-  ;;                 (counsel-git)
-  ;;               (error nil))
-  ;;             (counsel-projectile ivy-current-prefix-arg)))))
-  ;;     (counsel-projectile-switch-project-by-name project)))
+  (add-hook 'emacs-lisp-mode-hook
+            (lambda nil
+              (electric-pair-local-mode -1)))
+  (with-eval-after-load 'counsel-projectile
+    (advice-add 'counsel-projectile-switch-project-action
+                :around
+                (lambda (func proj)
+                  ;; "Open PROJ in dired mode. Try "
+                  (find-file proj)
+                  (let ((projectile-switch-project-action
+                         (lambda nil
+                           (or (ignore-errors (counsel-git))
+                               (counsel-projectile ivy-current-prefix-arg)))))
+                    (counsel-projectile-switch-project-by-name proj)))))
   (defun dc4ever/org()
     (interactive)
     (find-file "/home/xiaoxiangcao/.org/todo.org"))
   (treemacs-icons-dired-mode)
-  (setq org-present-text-scale 3)
-  (spacemacs/set-leader-keys "pf" #'helm-ls-git-ls)
+  (spacemacs/set-leader-keys "pf"
+    (lambda ()
+      (interactive)
+      (or
+       (ignore-errors (counsel-git))
+       (counsel-projectile-find-file))))
   (spacemacs/set-leader-keys "or" 'lisp-state-eval-sexp-end-of-line)
   (spacemacs/set-leader-keys "ow" 'sunshine-forecast)
   (spacemacs/set-leader-keys "ot" 'dc4ever/org)
   (spacemacs/toggle-highlight-long-lines-globally-on)
   (evil-set-initial-state 'term-mode 'emacs)
   (evil-set-initial-state 'sunshine-mode 'emacs)
+  (evil-set-initial-state 'snails-mode 'emacs)
   (defun spacemacs//pyenv-mode-set-local-version ()
     (interactive)
     (setenv "PYENV_VERSION" nil)
@@ -590,6 +611,7 @@ you should place your code here."
       (pyenv-mode-set version)))
   (add-to-list 'auto-mode-alist '("\\.ccls\\'" . shell-script-mode))
   (add-to-list 'auto-mode-alist '("\\.cu\\'" . c++-mode))
+  (add-to-list 'auto-mode-alist '("\\.cl\\'" . c-mode))
   ;; (spacemacs|define-jump-handlers cuda-mode)
   ;; (add-hook 'cuda-mode-hook 'lsp)
   ;; (add-hook 'cuda-mode-hook 'linum-mode)
@@ -600,7 +622,7 @@ you should place your code here."
   (defun dc4ever/get-rule-file (filename)
     "Get rule file of current proj or nil"
     (let ((pdir (projectile-project-p)))
-      (and pdir (concat (locate-dominating-file pdir filename) filename))))
+      (and pdir (concat (locate-dominating-file pdir ".") filename))))
   (defun dc4ever/make ()
     "Make current project."
     (interactive)
@@ -608,7 +630,8 @@ you should place your code here."
       (if filename
           (prog2
               (message "Make start...")
-              (async-shell-command (concat "make -f " filename)))
+              (async-shell-command
+               (concat "cd " (projectile-project-p) "; make -f " filename)))
         (error "No rule to make!"))))
   (defun dc4ever/edit-makefile ()
     "Edit rule file of current project"
@@ -618,9 +641,17 @@ you should place your code here."
           (find-file filename)
         (error "Not in project!"))))
   (spacemacs/set-leader-keys "om" 'dc4ever/make)
+  (spacemacs/set-leader-keys "os" #'counsel-search)
   (spacemacs/set-leader-keys "oe" 'dc4ever/edit-makefile)
+  (spacemacs/set-leader-keys "bo" 'view-buffer-other-window)
   (spacemacs/set-leader-keys "oh" 'dc4ever/toggle-write-hook)
+  (defun dc4ever/disable-restart ()
+    (interactive)
+    (message "Restart has been disabled for obvious reasons!"))
+  (spacemacs/set-leader-keys "qr" 'dc4ever/disable-restart)
+  (spacemacs/set-leader-keys "qR" 'dc4ever/disable-restart)
   (defun dc4ever/save-action (func &rest args)
+    "Make the project using `dc4ever/make' if `dc4ever/write-hook-enabled' is t."
     (apply func args)
     (and dc4ever/write-hook-enabled
          (progn
@@ -628,17 +659,42 @@ you should place your code here."
            (dc4ever/make))))
   (advice-add 'evil-write :around #'dc4ever/save-action)
 
-  (defun dc4ever/git-or-default (func &rest args)
-    (let ((proj (car args)))
-      (or
-       (condition-case nil
-           (progn
-             (find-file proj)
-             (helm-ls-git-ls)
-             t)
-         (error nil))
-       (apply func args))))
-  (advice-add 'projectile-switch-project-by-name :around #'dc4ever/git-or-default)
+  (with-eval-after-load 'doom-modeline
+    (require 'company)
+    (doom-modeline-def-segment minor-modes
+      (format-mode-line (and (bound-and-true-p company-mode) company-lighter))))
+
+  ;; (setq auto-window-vscroll nil)
+  (with-eval-after-load 'projectile
+    (advice-add 'projectile-ensure-project :filter-return
+                (lambda (proj)
+                  "If `default-directory' is not a project,
+call `find-file' to PROJ first. Then call `expand-file-name' to PROJ and return."
+                  (or (projectile-project-p default-directory) (find-file proj))
+                  (expand-file-name proj))))
+
+  ;; (defun dc4ever/git-or-default (func &rest args)
+  ;;   (let ((proj (car args)))
+  ;;     (or
+  ;;      (condition-case nil
+  ;;          (progn
+  ;;            (find-file proj)
+  ;;            (helm-ls-git-ls)
+  ;;            t)
+  ;;        (error nil))
+  ;;      (apply func args))))
+  ;; (advice-add 'projectile-switch-project-by-name :around #'dc4ever/git-or-default)
+  (with-eval-after-load 'slack
+    (slack-register-team
+     :name "deepmotion"
+     :default t
+     :client-id "xiaoxiangcao@deepmotion.ai"
+     :client-secret (shell-command-to-string "cd ~/.ssh/secret/; openssl rsautl -in pass.enc -inkey key.pem -decrypt")
+     :token (shell-command-to-string "cd ~/.ssh/secret/; openssl rsautl -in token.enc -inkey key.pem -decrypt")
+     :subscribed-channels '(slackbot))
+    (setq slack-enable-wysiwyg t)
+    (company-emoji-init)
+    (spacemacs/set-leader-keys "oo" 'slack-im-select))
   )
 
 ;; Do not write anything past this comment. This is where Emacs will
@@ -654,11 +710,15 @@ This function is called at the very end of Spacemacs initialization."
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(cmake-tab-width 4)
+ '(counsel-search-engine 'google)
  '(custom-safe-themes
    '("0598c6a29e13e7112cfbc2f523e31927ab7dce56ebb2016b567e1eff6dc1fd4f" "4aee8551b53a43a883cb0b7f3255d6859d766b6c5e14bcb01bed572fcbef4328" "a8245b7cc985a0610d71f9852e9f2767ad1b852c2bdea6f4aadc12cce9c4d6d0" "428754d8f3ed6449c1078ed5b4335f4949dc2ad54ed9de43c56ea9b803375c23" default))
+ '(doom-modeline-minor-modes t)
  '(evil-want-Y-yank-to-eol nil)
  '(exec-path-from-shell-check-startup-files nil)
- '(lsp-file-watch-threshold 1000)
+ '(lsp-enable-file-watchers nil)
+ '(lsp-python-ms-cache "Library")
+ '(org-agenda-files '("~/.org/todo.org"))
  '(org-link-frame-setup
    '((vm . vm-visit-folder-other-frame)
      (vm-imap . vm-visit-imap-folder-other-frame)
@@ -666,16 +726,19 @@ This function is called at the very end of Spacemacs initialization."
      (file . find-file)
      (wl . wl-other-frame)))
  '(package-selected-packages
-   '(helm-core doom-themes solarized-theme color-theme-solarized color-theme-sanityinc-solarized helm-ag pdf-tools groovy-mode gradle-mode exec-path-from-shell sunshine dockerfile-mode lsp-ui lsp-python cquery company-lsp ccls lsp-mode zeal-at-point yasnippet-snippets yapfify yaml-mode xterm-color xcscope ws-butler writeroom-mode winum which-key wgrep volatile-highlights vi-tilde-fringe uuidgen use-package unfill treemacs-projectile treemacs-icons-dired treemacs-evil toc-org symon string-inflection spaceline-all-the-icons smex smeargle shell-pop restart-emacs request rainbow-delimiters pyvenv pytest pyenv-mode py-isort protobuf-mode popwin pippel pipenv pip-requirements persp-mode pcre2el password-generator paradox overseer orgit org-projectile org-present org-pomodoro org-mime org-download org-bullets org-brain opencl-mode open-junk-file nameless mwim multi-term move-text mmm-mode markdown-toc magit-svn magit-gitflow macrostep lorem-ipsum live-py-mode link-hint json-mode ivy-yasnippet ivy-xref ivy-rtags ivy-purpose ivy-hydra indent-guide hungry-delete htmlize hl-todo highlight-parentheses highlight-numbers highlight-indentation helm-make google-translate google-c-style golden-ratio gnuplot gitignore-templates gitignore-mode gitconfig-mode gitattributes-mode git-timemachine git-messenger git-link gh-md ggtags fuzzy font-lock+ flx-ido fill-column-indicator fancy-battery eyebrowse expand-region evil-visualstar evil-visual-mark-mode evil-unimpaired evil-tutor evil-surround evil-org evil-numbers evil-nerd-commenter evil-matchit evil-magit evil-lisp-state evil-lion evil-indent-plus evil-iedit-state evil-goggles evil-exchange evil-escape evil-ediff evil-cleverparens evil-args evil-anzu eval-sexp-fu eshell-z eshell-prompt-extras esh-help elisp-slime-nav editorconfig dumb-jump dotenv-mode doom-modeline disaster diminish define-word cython-mode cuda-mode counsel-projectile counsel-gtags counsel-dash company-statistics company-rtags company-c-headers company-anaconda column-enforce-mode cmake-mode cmake-ide clean-aindent-mode clang-format centered-cursor-mode auto-yasnippet auto-highlight-symbol auto-compile aggressive-indent ace-link ac-ispell))
+   '(minions linum-relative helm-core doom-themes solarized-theme color-theme-solarized color-theme-sanityinc-solarized helm-ag pdf-tools groovy-mode gradle-mode exec-path-from-shell sunshine dockerfile-mode lsp-ui lsp-python cquery company-lsp ccls lsp-mode zeal-at-point yasnippet-snippets yapfify yaml-mode xterm-color xcscope ws-butler writeroom-mode winum which-key wgrep volatile-highlights vi-tilde-fringe uuidgen use-package unfill treemacs-projectile treemacs-icons-dired treemacs-evil toc-org symon string-inflection spaceline-all-the-icons smex smeargle shell-pop restart-emacs request rainbow-delimiters pyvenv pytest pyenv-mode py-isort protobuf-mode popwin pippel pipenv pip-requirements persp-mode pcre2el password-generator paradox overseer orgit org-projectile org-present org-pomodoro org-mime org-download org-bullets org-brain opencl-mode open-junk-file nameless mwim multi-term move-text mmm-mode markdown-toc magit-svn magit-gitflow macrostep lorem-ipsum live-py-mode link-hint json-mode ivy-yasnippet ivy-xref ivy-rtags ivy-purpose ivy-hydra indent-guide hungry-delete htmlize hl-todo highlight-parentheses highlight-numbers highlight-indentation helm-make google-translate google-c-style golden-ratio gnuplot gitignore-templates gitignore-mode gitconfig-mode gitattributes-mode git-timemachine git-messenger git-link gh-md ggtags fuzzy font-lock+ flx-ido fill-column-indicator fancy-battery eyebrowse expand-region evil-visualstar evil-visual-mark-mode evil-unimpaired evil-tutor evil-surround evil-org evil-numbers evil-nerd-commenter evil-matchit evil-magit evil-lisp-state evil-lion evil-indent-plus evil-iedit-state evil-goggles evil-exchange evil-escape evil-ediff evil-cleverparens evil-args evil-anzu eval-sexp-fu eshell-z eshell-prompt-extras esh-help elisp-slime-nav editorconfig dumb-jump dotenv-mode doom-modeline disaster diminish define-word cython-mode cuda-mode counsel-projectile counsel-gtags counsel-dash company-statistics company-rtags company-c-headers company-anaconda column-enforce-mode cmake-mode cmake-ide clean-aindent-mode clang-format centered-cursor-mode auto-yasnippet auto-highlight-symbol auto-compile aggressive-indent ace-link ac-ispell))
  '(pdf-view-resize-factor 1.05)
+ '(split-width-threshold 140)
  '(sunshine-appid "2737f04d3df89d1b08bb95e9424b32b1")
  '(sunshine-location "Beijing,CN")
  '(sunshine-show-icons t)
- '(sunshine-units 'metric))
+ '(sunshine-units 'metric)
+ '(tab-width 8))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(helm-selection ((t (:inherit bold :background "dark magenta" :foreground "gainsboro")))))
+ '(helm-selection ((t (:inherit bold :background "dark magenta" :foreground "gainsboro"))))
+ '(hl-line ((t nil))))
 )

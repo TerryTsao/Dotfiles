@@ -138,7 +138,7 @@ function tags() {
     cscope -qRbi cscope.files
 }
 
-export LD_LIBRARY_PATH=/usr/local/cuda/lib64/:/home/xiaoxiangcao/Downloads/TensorRT-4.0.1.6/lib
+# export LD_LIBRARY_PATH=/usr/local/cuda/lib64/:/home/xiaoxiangcao/Downloads/TensorRT-4.0.1.6/lib
 export PATH=/usr/local/cuda/bin:$PATH
 
 export PYTHONPATH=~/Documents/caffe/python
@@ -159,7 +159,7 @@ $PS1
 $ "
 
 
-eval $(thefuck --alias)
+# eval $(thefuck --alias)
 
 function e() {
     if [ "-c" = "$1" ]; then
@@ -188,3 +188,4 @@ function ece() {
     e -c "$@" && exit;
 }
 
+umask 022

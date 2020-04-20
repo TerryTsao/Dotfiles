@@ -2,7 +2,6 @@
 	autocrlf = input
 	editor = vim
     pager = more
-	excludesfile = /home/xiaoxiangcao/.gitignore
 
 [user]
 	name = Xiaoxiang Cao
@@ -35,3 +34,27 @@
 	clean = git-lfs clean -- %f
 	smudge = git-lfs smudge -- %f
 
+
+[core]
+	excludesfile = /home/xiaoxiangcao/.gitignore_codenvy
+
+[core]
+	excludesfile = /home/xiaoxiangcao/.gitignore_codenvy
+
+[core]
+	excludesfile = /home/xiaoxiangcao/.gitignore_codenvy
+
+[core]
+	excludesfile = /home/xiaoxiangcao/.gitignore_codenvy
+
+[core]
+	excludesfile = /home/xiaoxiangcao/.gitignore_codenvy
+
+[core]
+	excludesfile = /home/xiaoxiangcao/.gitignore_codenvy
+
+[core]
+	excludesfile = /home/xiaoxiangcao/.gitignore_codenvy
+
+[core]
+	excludesfile = /home/xiaoxiangcao/.gitignore_codenvy

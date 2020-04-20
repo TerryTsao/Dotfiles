@@ -1,9 +1,3 @@
-if [ "$SHELL" = "/usr/local/bin/zsh" ]; then
-    setopt aliases
-else
-    shopt -s expand_aliases
-fi
-
 # Most useful
 alias vi=vim
 alias ..='cd ..'
@@ -41,4 +35,6 @@ alias nv='ssh nvidia@10.10.99.143'
 alias cc='ssh xiaoxiang@10.10.99.230'
 
 alias f='fuck'
+alias ff='fd'
 
+alias et='emacsclient -t'
