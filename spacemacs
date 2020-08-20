@@ -52,6 +52,7 @@ This function should only modify configuration layer settings."
      emacs-lisp
      git
      markdown
+     gnus
      org
      gtags
      protobuf
@@ -575,6 +576,8 @@ you should place your code here."
   (add-hook 'emacs-lisp-mode-hook
             (lambda nil
               (electric-pair-local-mode -1)))
+  (with-eval-after-load 'zeal-at-point
+    (add-to-list 'zeal-at-point-mode-alist '(cmake-mode . "cmake")))
   (with-eval-after-load 'counsel-projectile
     (advice-add 'counsel-projectile-switch-project-action
                 :around
@@ -643,7 +646,7 @@ you should place your code here."
   (spacemacs/set-leader-keys "om" 'dc4ever/make)
   (spacemacs/set-leader-keys "os" #'counsel-search)
   (spacemacs/set-leader-keys "oe" 'dc4ever/edit-makefile)
-  (spacemacs/set-leader-keys "bo" 'view-buffer-other-window)
+  (spacemacs/set-leader-keys "bo" 'switch-buffer-other-window-without-purpose)
   (spacemacs/set-leader-keys "oh" 'dc4ever/toggle-write-hook)
   (defun dc4ever/disable-restart ()
     (interactive)
@@ -693,8 +696,11 @@ call `find-file' to PROJ first. Then call `expand-file-name' to PROJ and return.
      :token (shell-command-to-string "cd ~/.ssh/secret/; openssl rsautl -in token.enc -inkey key.pem -decrypt")
      :subscribed-channels '(slackbot))
     (setq slack-enable-wysiwyg t)
-    (company-emoji-init)
     (spacemacs/set-leader-keys "oo" 'slack-im-select))
+  (define-key evil-insert-state-map (kbd "C-c C-c") 'evil-normal-state)
+  (define-key evil-normal-state-map (kbd "C-c C-c") 'evil-normal-state)
+  (add-hook 'term-mode-hook
+            (lambda nil (define-key term-raw-map "\C-c\C-z" 'term-stop-subjob)))
   )
 
 ;; Do not write anything past this comment. This is where Emacs will
@@ -714,10 +720,11 @@ This function is called at the very end of Spacemacs initialization."
  '(custom-safe-themes
    '("0598c6a29e13e7112cfbc2f523e31927ab7dce56ebb2016b567e1eff6dc1fd4f" "4aee8551b53a43a883cb0b7f3255d6859d766b6c5e14bcb01bed572fcbef4328" "a8245b7cc985a0610d71f9852e9f2767ad1b852c2bdea6f4aadc12cce9c4d6d0" "428754d8f3ed6449c1078ed5b4335f4949dc2ad54ed9de43c56ea9b803375c23" default))
  '(doom-modeline-minor-modes t)
- '(evil-want-Y-yank-to-eol nil)
+ '(evil-want-Y-yank-to-eol t)
  '(exec-path-from-shell-check-startup-files nil)
  '(lsp-enable-file-watchers nil)
  '(lsp-python-ms-cache "Library")
+ '(lsp-ui-doc-position 'top)
  '(org-agenda-files '("~/.org/todo.org"))
  '(org-link-frame-setup
    '((vm . vm-visit-folder-other-frame)
@@ -728,6 +735,7 @@ This function is called at the very end of Spacemacs initialization."
  '(package-selected-packages
    '(minions linum-relative helm-core doom-themes solarized-theme color-theme-solarized color-theme-sanityinc-solarized helm-ag pdf-tools groovy-mode gradle-mode exec-path-from-shell sunshine dockerfile-mode lsp-ui lsp-python cquery company-lsp ccls lsp-mode zeal-at-point yasnippet-snippets yapfify yaml-mode xterm-color xcscope ws-butler writeroom-mode winum which-key wgrep volatile-highlights vi-tilde-fringe uuidgen use-package unfill treemacs-projectile treemacs-icons-dired treemacs-evil toc-org symon string-inflection spaceline-all-the-icons smex smeargle shell-pop restart-emacs request rainbow-delimiters pyvenv pytest pyenv-mode py-isort protobuf-mode popwin pippel pipenv pip-requirements persp-mode pcre2el password-generator paradox overseer orgit org-projectile org-present org-pomodoro org-mime org-download org-bullets org-brain opencl-mode open-junk-file nameless mwim multi-term move-text mmm-mode markdown-toc magit-svn magit-gitflow macrostep lorem-ipsum live-py-mode link-hint json-mode ivy-yasnippet ivy-xref ivy-rtags ivy-purpose ivy-hydra indent-guide hungry-delete htmlize hl-todo highlight-parentheses highlight-numbers highlight-indentation helm-make google-translate google-c-style golden-ratio gnuplot gitignore-templates gitignore-mode gitconfig-mode gitattributes-mode git-timemachine git-messenger git-link gh-md ggtags fuzzy font-lock+ flx-ido fill-column-indicator fancy-battery eyebrowse expand-region evil-visualstar evil-visual-mark-mode evil-unimpaired evil-tutor evil-surround evil-org evil-numbers evil-nerd-commenter evil-matchit evil-magit evil-lisp-state evil-lion evil-indent-plus evil-iedit-state evil-goggles evil-exchange evil-escape evil-ediff evil-cleverparens evil-args evil-anzu eval-sexp-fu eshell-z eshell-prompt-extras esh-help elisp-slime-nav editorconfig dumb-jump dotenv-mode doom-modeline disaster diminish define-word cython-mode cuda-mode counsel-projectile counsel-gtags counsel-dash company-statistics company-rtags company-c-headers company-anaconda column-enforce-mode cmake-mode cmake-ide clean-aindent-mode clang-format centered-cursor-mode auto-yasnippet auto-highlight-symbol auto-compile aggressive-indent ace-link ac-ispell))
  '(pdf-view-resize-factor 1.05)
+ '(safe-local-variable-values '((encoding . utf-8)))
  '(split-width-threshold 140)
  '(sunshine-appid "2737f04d3df89d1b08bb95e9424b32b1")
  '(sunshine-location "Beijing,CN")
