@@ -532,175 +532,12 @@ layers configuration.
 This is the place where most of your configurations should be done. Unless it is
 explicitly specified that a variable should be set before a package is loaded,
 you should place your code here."
-  ;; (load-theme 'solarized-dark)
-  (evil-escape-mode -1)
-  (global-company-mode)
-  ;; (electric-pair-mode t)
-  (setq powerline-default-separator 'arrow)
-  (setq company-minimum-prefix-length 1)
-  ;; (company-tng-configure-default)
-  ;; (setq ycmd-server-command '("python3" "/home/xiaoxiangcao/.vim/bundle/YouCompleteMe/third_party/ycmd/ycmd"))
-  ;; (set-variable 'ycmd-extra-conf-whitelist '("~/Documents/myWork/dm_trt_deploy/*"))
-  ;; (set-variable 'ycmd-global-config "/home/xiaoxiangcao/.vim/bundle/YouCompleteMe/third_party/ycmd/cpp/ycm/.ycm_extra_conf.py")
-  (spacemacs/diminish-undo 'company-mode)
-  ;; (add-hook 'emacs-lisp-mode-hook
-  ;;           (lambda ()
-  ;;             (set company-backends '(company-capf
-  ;;                                     (company-elisp company-files company-dabbrev-code)))))
-  (setq-default dc4ever/is-view nil)
-  (setq-default dc4ever/write-hook-enabled nil)
-  (defun dc4ever/toggle-write-hook ()
-    (interactive)
-    (setq-default dc4ever/write-hook-enabled (not dc4ever/write-hook-enabled))
-    (message "Automake on save %s" (if dc4ever/write-hook-enabled "ON" "OFF")))
-  (defun dc4ever/toggle-view-mode()
-    (interactive)
-    (setq-default dc4ever/is-view (not dc4ever/is-view))
-    (message "View mode %s" (if dc4ever/is-view "ON" "OFF"))
-    )
-  (add-hook 'prog-mode-hook
-            '(lambda nil
-               (and
-                (eval 'dc4ever/is-view)
-                (read-only-mode 1))))
-  ;; (add-hook 'cuda-mode-hook
-  ;;           '(lambda nil
-  ;;              (and
-  ;;               (eval 'dc4ever/is-view)
-  ;;               (read-only-mode 1))))
-  (add-hook 'text-mode-hook
-            '(lambda nil
-               (and
-                (eval 'dc4ever/is-view)
-                (read-only-mode 1))))
-  (add-hook 'emacs-lisp-mode-hook
-            (lambda nil
-              (electric-pair-local-mode -1)))
-  (with-eval-after-load 'zeal-at-point
-    (add-to-list 'zeal-at-point-mode-alist '(cmake-mode . "cmake")))
-  (with-eval-after-load 'counsel-projectile
-    (advice-add 'counsel-projectile-switch-project-action
-                :around
-                (lambda (func proj)
-                  ;; "Open PROJ in dired mode. Try "
-                  (find-file proj)
-                  (let ((projectile-switch-project-action
-                         (lambda nil
-                           (or (ignore-errors (counsel-git))
-                               (counsel-projectile ivy-current-prefix-arg)))))
-                    (counsel-projectile-switch-project-by-name proj)))))
-  (defun dc4ever/org()
-    (interactive)
-    (find-file "/home/xiaoxiangcao/.org/todo.org"))
-  (treemacs-icons-dired-mode)
-  (spacemacs/set-leader-keys "pf"
-    (lambda ()
-      (interactive)
-      (or
-       (ignore-errors (counsel-git))
-       (counsel-projectile-find-file))))
-  (spacemacs/set-leader-keys "or" 'lisp-state-eval-sexp-end-of-line)
-  (spacemacs/set-leader-keys "ow" 'sunshine-forecast)
-  (spacemacs/set-leader-keys "ot" 'dc4ever/org)
-  (spacemacs/toggle-highlight-long-lines-globally-on)
-  (evil-set-initial-state 'term-mode 'emacs)
-  (evil-set-initial-state 'sunshine-mode 'emacs)
-  (evil-set-initial-state 'snails-mode 'emacs)
-  (defun spacemacs//pyenv-mode-set-local-version ()
-    (interactive)
-    (setenv "PYENV_VERSION" nil)
-    (let ((version
-           (string-trim (shell-command-to-string "pyenv version-name"))))
-      (pyenv-mode-set version)))
-  (add-to-list 'auto-mode-alist '("\\.ccls\\'" . shell-script-mode))
-  (add-to-list 'auto-mode-alist '("\\.cu\\'" . c++-mode))
-  (add-to-list 'auto-mode-alist '("\\.cl\\'" . c-mode))
-  ;; (spacemacs|define-jump-handlers cuda-mode)
-  ;; (add-hook 'cuda-mode-hook 'lsp)
-  ;; (add-hook 'cuda-mode-hook 'linum-mode)
-  (add-hook 'org-mode-hook '(lambda () (setq-local evil-auto-indent nil)))
-  (add-hook 'pdf-view-mode-hook 'spacemacs/toggle-mode-line)
-  (pdf-tools-install)
-  (exec-path-from-shell-initialize)
-  (defun dc4ever/get-rule-file (filename)
-    "Get rule file of current proj or nil"
-    (let ((pdir (projectile-project-p)))
-      (and pdir (concat (locate-dominating-file pdir ".") filename))))
-  (defun dc4ever/make ()
-    "Make current project."
-    (interactive)
-    (let* ((filename (dc4ever/get-rule-file "tt-special.make")))
-      (if filename
-          (prog2
-              (message "Make start...")
-              (async-shell-command
-               (concat "cd " (projectile-project-p) "; make -f " filename)))
-        (error "No rule to make!"))))
-  (defun dc4ever/edit-makefile ()
-    "Edit rule file of current project"
-    (interactive)
-    (let* ((filename (dc4ever/get-rule-file "tt-special.make")))
-      (if filename
-          (find-file filename)
-        (error "Not in project!"))))
-  (spacemacs/set-leader-keys "om" 'dc4ever/make)
-  (spacemacs/set-leader-keys "os" #'counsel-search)
-  (spacemacs/set-leader-keys "oe" 'dc4ever/edit-makefile)
-  (spacemacs/set-leader-keys "bo" 'switch-buffer-other-window-without-purpose)
-  (spacemacs/set-leader-keys "oh" 'dc4ever/toggle-write-hook)
-  (defun dc4ever/disable-restart ()
-    (interactive)
-    (message "Restart has been disabled for obvious reasons!"))
-  (spacemacs/set-leader-keys "qr" 'dc4ever/disable-restart)
-  (spacemacs/set-leader-keys "qR" 'dc4ever/disable-restart)
-  (defun dc4ever/save-action (func &rest args)
-    "Make the project using `dc4ever/make' if `dc4ever/write-hook-enabled' is t."
-    (apply func args)
-    (and dc4ever/write-hook-enabled
-         (progn
-           (message "make")
-           (dc4ever/make))))
-  (advice-add 'evil-write :around #'dc4ever/save-action)
-
-  (with-eval-after-load 'doom-modeline
-    (require 'company)
-    (doom-modeline-def-segment minor-modes
-      (format-mode-line (and (bound-and-true-p company-mode) company-lighter))))
-
-  ;; (setq auto-window-vscroll nil)
-  (with-eval-after-load 'projectile
-    (advice-add 'projectile-ensure-project :filter-return
-                (lambda (proj)
-                  "If `default-directory' is not a project,
-call `find-file' to PROJ first. Then call `expand-file-name' to PROJ and return."
-                  (or (projectile-project-p default-directory) (find-file proj))
-                  (expand-file-name proj))))
-
-  ;; (defun dc4ever/git-or-default (func &rest args)
-  ;;   (let ((proj (car args)))
-  ;;     (or
-  ;;      (condition-case nil
-  ;;          (progn
-  ;;            (find-file proj)
-  ;;            (helm-ls-git-ls)
-  ;;            t)
-  ;;        (error nil))
-  ;;      (apply func args))))
-  ;; (advice-add 'projectile-switch-project-by-name :around #'dc4ever/git-or-default)
-  (with-eval-after-load 'slack
-    (slack-register-team
-     :name "deepmotion"
-     :default t
-     :client-id "xiaoxiangcao@deepmotion.ai"
-     :client-secret (shell-command-to-string "cd ~/.ssh/secret/; openssl rsautl -in pass.enc -inkey key.pem -decrypt")
-     :token (shell-command-to-string "cd ~/.ssh/secret/; openssl rsautl -in token.enc -inkey key.pem -decrypt")
-     :subscribed-channels '(slackbot))
-    (setq slack-enable-wysiwyg t)
-    (spacemacs/set-leader-keys "oo" 'slack-im-select))
-  (define-key evil-insert-state-map (kbd "C-c C-c") 'evil-normal-state)
-  (define-key evil-normal-state-map (kbd "C-c C-c") 'evil-normal-state)
-  (add-hook 'term-mode-hook
-            (lambda nil (define-key term-raw-map "\C-c\C-z" 'term-stop-subjob)))
+  (setq dc4ever/tweak-dir "~/Dotfiles/emacs-tweaks/")
+  (add-to-load-path dc4ever/tweak-dir)
+  (require 'dc4ever-better-defaults)
+  (require 'dc4ever)
+  (require 'dc4ever-kbd)
+  (require 'dc4ever-fix)
   )
 
 ;; Do not write anything past this comment. This is where Emacs will
@@ -735,7 +572,15 @@ This function is called at the very end of Spacemacs initialization."
  '(package-selected-packages
    '(minions linum-relative helm-core doom-themes solarized-theme color-theme-solarized color-theme-sanityinc-solarized helm-ag pdf-tools groovy-mode gradle-mode exec-path-from-shell sunshine dockerfile-mode lsp-ui lsp-python cquery company-lsp ccls lsp-mode zeal-at-point yasnippet-snippets yapfify yaml-mode xterm-color xcscope ws-butler writeroom-mode winum which-key wgrep volatile-highlights vi-tilde-fringe uuidgen use-package unfill treemacs-projectile treemacs-icons-dired treemacs-evil toc-org symon string-inflection spaceline-all-the-icons smex smeargle shell-pop restart-emacs request rainbow-delimiters pyvenv pytest pyenv-mode py-isort protobuf-mode popwin pippel pipenv pip-requirements persp-mode pcre2el password-generator paradox overseer orgit org-projectile org-present org-pomodoro org-mime org-download org-bullets org-brain opencl-mode open-junk-file nameless mwim multi-term move-text mmm-mode markdown-toc magit-svn magit-gitflow macrostep lorem-ipsum live-py-mode link-hint json-mode ivy-yasnippet ivy-xref ivy-rtags ivy-purpose ivy-hydra indent-guide hungry-delete htmlize hl-todo highlight-parentheses highlight-numbers highlight-indentation helm-make google-translate google-c-style golden-ratio gnuplot gitignore-templates gitignore-mode gitconfig-mode gitattributes-mode git-timemachine git-messenger git-link gh-md ggtags fuzzy font-lock+ flx-ido fill-column-indicator fancy-battery eyebrowse expand-region evil-visualstar evil-visual-mark-mode evil-unimpaired evil-tutor evil-surround evil-org evil-numbers evil-nerd-commenter evil-matchit evil-magit evil-lisp-state evil-lion evil-indent-plus evil-iedit-state evil-goggles evil-exchange evil-escape evil-ediff evil-cleverparens evil-args evil-anzu eval-sexp-fu eshell-z eshell-prompt-extras esh-help elisp-slime-nav editorconfig dumb-jump dotenv-mode doom-modeline disaster diminish define-word cython-mode cuda-mode counsel-projectile counsel-gtags counsel-dash company-statistics company-rtags company-c-headers company-anaconda column-enforce-mode cmake-mode cmake-ide clean-aindent-mode clang-format centered-cursor-mode auto-yasnippet auto-highlight-symbol auto-compile aggressive-indent ace-link ac-ispell))
  '(pdf-view-resize-factor 1.05)
- '(safe-local-variable-values '((encoding . utf-8)))
+ '(safe-local-variable-values
+   '((eval font-lock-add-keywords nil
+           `((,(concat "("
+                       (regexp-opt
+                        '("sp-do-move-op" "sp-do-move-cl" "sp-do-put-op" "sp-do-put-cl" "sp-do-del-op" "sp-do-del-cl")
+                        t)
+                       "\\_>")
+              1 'font-lock-variable-name-face)))
+     (encoding . utf-8)))
  '(split-width-threshold 140)
  '(sunshine-appid "2737f04d3df89d1b08bb95e9424b32b1")
  '(sunshine-location "Beijing,CN")
