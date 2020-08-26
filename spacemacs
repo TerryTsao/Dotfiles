@@ -54,7 +54,6 @@ This function should only modify configuration layer settings."
      markdown
      gnus
      org
-     gtags
      protobuf
      asm
      cscope
@@ -515,6 +514,7 @@ If you are unsure, try setting them in `dotspacemacs/user-config' first."
   (setq evil-ex-search-vim-style-regexp t)
   (setq evil-search-module 'evil-search)
   (setq evil-magic 'very-magic)
+  (setq cmake-backend 'company-cmake)
   ;; (setq git-magit-status-fullscreen t)
   )
 
@@ -562,7 +562,7 @@ This function is called at the very end of Spacemacs initialization."
  '(lsp-enable-file-watchers nil)
  '(lsp-python-ms-cache "Library")
  '(lsp-ui-doc-position 'top)
- '(org-agenda-files '("~/.org/todo.org"))
+ '(org-agenda-files '("~/Dropbox/org/work.org" "~/Dropbox/org/life.org"))
  '(org-link-frame-setup
    '((vm . vm-visit-folder-other-frame)
      (vm-imap . vm-visit-imap-folder-other-frame)
