@@ -9,22 +9,19 @@
 - We are dealing with `company-capf' `pcase' `prefix'
 - We are using `lsp-completion-at-point' as capf
 - We are using `ccls' as lsp server
-- We are trying to complete a string starting with \"
+- We are trying to complete a string
 - We are not trying to complete header files"
     (unless (and (and (boundp 'dc4ever/capf-prefix?) dc4ever/capf-prefix?)
                  (eq 'lsp-completion-at-point (car res))
                  (eq 'ccls (lsp--workspace-server-id (car (lsp-workspaces))))
-                 (let ((bounds-start (nth 1 res)))
+                 (let ((bounds-start (nth 1 res))
+                       (header/incl "#include "))
                    (save-excursion
-                     (goto-char bounds-start)
-                     (unless (= (point) (point-at-bol))
-                       (and
-                        (not (equal "#include "
-                                    (buffer-substring-no-properties
-                                     (point-at-bol)
-                                     (+ (point-at-bol) (length "#include ")))))
-                        (equal "\"" (buffer-substring-no-properties
-                                     (- (point) 1) (point))))))))
+                     (and (nth 3 (syntax-ppss bounds-start))
+                          (not (equal "#include "
+                                      (buffer-substring-no-properties
+                                       (point-at-bol)
+                                       (+ (point-at-bol) (length "#include ")))))))))
       res))
   (defun dc4ever/capf-wrapper (func &rest r)
     "Wrap `company-capf' with a special tmp variable `dc4ever/capf-prefix?'
