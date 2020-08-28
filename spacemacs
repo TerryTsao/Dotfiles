@@ -562,7 +562,8 @@ This function is called at the very end of Spacemacs initialization."
  '(lsp-enable-file-watchers nil)
  '(lsp-python-ms-cache "Library")
  '(lsp-ui-doc-position 'top)
- '(org-agenda-files '("~/Dropbox/org/work.org" "~/Dropbox/org/life.org"))
+ '(org-agenda-files
+   '("~/Dropbox/org/work.org" "~/Dropbox/org/life.org" "~/Dropbox/org/balance.org"))
  '(org-link-frame-setup
    '((vm . vm-visit-folder-other-frame)
      (vm-imap . vm-visit-imap-folder-other-frame)
