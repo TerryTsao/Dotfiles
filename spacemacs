@@ -32,7 +32,7 @@ This function should only modify configuration layer settings."
 
    ;; List of configuration layers to load.
    dotspacemacs-configuration-layers
-   '(
+   '(html
      cmake
      emoji
      ivy
@@ -515,7 +515,9 @@ If you are unsure, try setting them in `dotspacemacs/user-config' first."
   (setq evil-search-module 'evil-search)
   (setq evil-magic 'very-magic)
   (setq cmake-backend 'company-cmake)
-  ;; (setq git-magit-status-fullscreen t)
+  (setq python-backend 'company-anaconda)
+  (setq python-formatter 'yapf)
+  (setq git-magit-status-fullscreen t)
   )
 
 (defun dotspacemacs/user-load ()

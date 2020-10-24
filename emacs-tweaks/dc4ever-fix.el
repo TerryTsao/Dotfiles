@@ -72,11 +72,6 @@ If not in a git repo, use plain old `counsel-projectile'"
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; `smartparens-mode' & `hippie-expand' conflict work around
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(advice-add 'auto-completion/init-hippie-exp
-            :after
-            (lambda (&rest r)
-              "Use `yas-expand' directly"
-              (global-set-key (kbd "M-/") 'yas-expand)))
 (advice-add 'spacemacs//smartparens-disable-before-expand-snippet
             :after
             (lambda (&rest r)

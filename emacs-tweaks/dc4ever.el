@@ -54,4 +54,15 @@
   (advice-add 'slack-select-emoji :override 'dc4ever/slack-select-emoji)
   (spacemacs/set-leader-keys "oo" 'slack-im-select))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; `org-capture-templates' setup
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(setq org-capture-templates
+      '(("w" "work" entry (file "~/Dropbox/org/work.org")
+         "* TODO %?\n" :prepend t)
+        ("l" "life" entry (file "~/Dropbox/org/life.org")
+         "* TODO %?\n" :prepend t)
+        ("b" "balance" entry (file "~/Dropbox/org/balance.org")
+         "* TODO %?\n" :prepend t)))
+
 (provide 'dc4ever)

@@ -40,4 +40,7 @@
      (ignore-errors (counsel-git))
      (counsel-projectile-find-file))))
 
+;; Set unicode for displaying cards
+(set-fontset-font t 'playing-cards "DejaVu Sans")
+
 (provide 'dc4ever-better-defaults)
