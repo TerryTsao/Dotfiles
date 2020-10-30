@@ -2,6 +2,8 @@
 
 (evil-escape-mode -1)
 (global-company-mode)
+(setq prettify-symbols-unprettify-at-point t)
+(global-prettify-symbols-mode)
 (setq powerline-default-separator 'arrow)
 (setq company-minimum-prefix-length 1)
 (add-hook 'emacs-lisp-mode-hook
