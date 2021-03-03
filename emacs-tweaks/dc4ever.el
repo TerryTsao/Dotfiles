@@ -35,9 +35,8 @@
    :name "deepmotion"
    :default t
    :client-id "xiaoxiangcao@deepmotion.ai"
-   :client-secret (shell-command-to-string "cd ~/.ssh/secret/; openssl rsautl -in pass.enc -inkey key.pem -decrypt")
    :token (shell-command-to-string "cd ~/.ssh/secret/; openssl rsautl -in token.enc -inkey key.pem -decrypt")
-   :subscribed-channels '(slackbot))
+   :subscribed-channels '(slackbot hardcore-deployment))
   (setq slack-enable-wysiwyg t)
   (defun dc4ever/slack-select-emoji (team)
     (if (and (fboundp 'emojify-completing-read)

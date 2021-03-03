@@ -38,23 +38,7 @@
 [core]
 	excludesfile = /home/xiaoxiangcao/.gitignore_codenvy
 
-[core]
-	excludesfile = /home/xiaoxiangcao/.gitignore_codenvy
-
-[core]
-	excludesfile = /home/xiaoxiangcao/.gitignore_codenvy
-
-[core]
-	excludesfile = /home/xiaoxiangcao/.gitignore_codenvy
-
-[core]
-	excludesfile = /home/xiaoxiangcao/.gitignore_codenvy
-
-[core]
-	excludesfile = /home/xiaoxiangcao/.gitignore_codenvy
-
-[core]
-	excludesfile = /home/xiaoxiangcao/.gitignore_codenvy
-
-[core]
-	excludesfile = /home/xiaoxiangcao/.gitignore_codenvy
+# [url "https://gitclone.com/"]
+# 	insteadOf = https://
+# [url "https://github.com.cnpmjs.org/"]
+# 	insteadOf = https://github.com/

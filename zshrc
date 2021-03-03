@@ -189,3 +189,6 @@ function ece() {
 }
 
 umask 022
+
+TTRR=' --rsync-path=/opt/Free_eMMC1/usr/bin/rsync'
+. ~/.pyenv/versions/env3/bin/activate

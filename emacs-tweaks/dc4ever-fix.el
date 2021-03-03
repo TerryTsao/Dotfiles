@@ -65,7 +65,8 @@ If not in a git repo, use plain old `counsel-projectile'"
                 (find-file proj)
                 (let ((projectile-switch-project-action
                        (lambda nil
-                         (or (ignore-errors (counsel-git))
+                         (or (projectile-recentf)
+                             (ignore-errors (counsel-git))
                              (counsel-projectile ivy-current-prefix-arg)))))
                   (counsel-projectile-switch-project-by-name proj)))))
 

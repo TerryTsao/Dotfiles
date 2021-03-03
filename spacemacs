@@ -32,7 +32,9 @@ This function should only modify configuration layer settings."
 
    ;; List of configuration layers to load.
    dotspacemacs-configuration-layers
-   '(html
+   '(rust
+     shell-scripts
+     html
      cmake
      emoji
      ivy
@@ -53,7 +55,8 @@ This function should only modify configuration layer settings."
      git
      markdown
      gnus
-     org
+     (org :variables
+          org-enable-hugo-support t)
      protobuf
      asm
      cscope
@@ -63,7 +66,6 @@ This function should only modify configuration layer settings."
      (auto-completion :variables
                       auto-completion-return-key-behavior 'complete
                       auto-completion-tab-key-behavior 'cycle
-                      auto-completion-complete-with-key-sequence (kbd "jk")
                       auto-completion-complete-with-key-sequence-delay 0.3
                       auto-completion-enable-sort-by-usage nil)
      dap
@@ -76,8 +78,8 @@ This function should only modify configuration layer settings."
      (shell :variables
             shell-default-width 40
             shell-default-position 'right
-            ;; multi-term-program "/usr/local/bin/zsh"
-            shell-default-shell 'multi-term
+            shell-default-term-shell "/usr/bin/fish"
+            shell-default-shell 'vterm
             )
      ;; spell-checking
      ;; syntax-checking
@@ -239,6 +241,8 @@ It should only modify the values of Spacemacs settings."
    dotspacemacs-themes '(
                          doom-solarized-dark
                          spacemacs-dark
+                         doom-solarized-light
+                         spacemacs-light
                          )
 
    ;; Set the theme for the Spaceline. Supported themes are `spacemacs',
@@ -534,6 +538,8 @@ layers configuration.
 This is the place where most of your configurations should be done. Unless it is
 explicitly specified that a variable should be set before a package is loaded,
 you should place your code here."
+  (with-eval-after-load 'flycheck
+    (lambda nil (add-to-list 'flycheck-disabled-checkers 'python-mypy)))
   (setq dc4ever/tweak-dir "~/Dotfiles/emacs-tweaks/")
   (add-to-load-path dc4ever/tweak-dir)
   (require 'dc4ever-better-defaults)
@@ -554,14 +560,22 @@ This function is called at the very end of Spacemacs initialization."
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
+ '(Man-notify-method 'aggressive)
  '(cmake-tab-width 4)
+ '(company-backends
+   '(company-anaconda company-files
+                      (company-dabbrev-code company-gtags company-etags company-keywords)
+                      company-oddmuse company-dabbrev))
  '(counsel-search-engine 'google)
  '(custom-safe-themes
    '("0598c6a29e13e7112cfbc2f523e31927ab7dce56ebb2016b567e1eff6dc1fd4f" "4aee8551b53a43a883cb0b7f3255d6859d766b6c5e14bcb01bed572fcbef4328" "a8245b7cc985a0610d71f9852e9f2767ad1b852c2bdea6f4aadc12cce9c4d6d0" "428754d8f3ed6449c1078ed5b4335f4949dc2ad54ed9de43c56ea9b803375c23" default))
  '(doom-modeline-minor-modes t)
  '(evil-want-Y-yank-to-eol t)
- '(exec-path-from-shell-check-startup-files nil)
+ '(exec-path-from-shell-check-startup-files t)
+ '(flycheck-python-mypy-executable "/home/xiaoxiangcao/.pyenv/versions/env3/bin/mypy")
+ '(ivy-count-format "(%d/%d) ")
  '(lsp-enable-file-watchers nil)
+ '(lsp-file-watch-threshold 1000)
  '(lsp-python-ms-cache "Library")
  '(lsp-ui-doc-position 'top)
  '(org-agenda-files
@@ -573,10 +587,16 @@ This function is called at the very end of Spacemacs initialization."
      (file . find-file)
      (wl . wl-other-frame)))
  '(package-selected-packages
-   '(minions linum-relative helm-core doom-themes solarized-theme color-theme-solarized color-theme-sanityinc-solarized helm-ag pdf-tools groovy-mode gradle-mode exec-path-from-shell sunshine dockerfile-mode lsp-ui lsp-python cquery company-lsp ccls lsp-mode zeal-at-point yasnippet-snippets yapfify yaml-mode xterm-color xcscope ws-butler writeroom-mode winum which-key wgrep volatile-highlights vi-tilde-fringe uuidgen use-package unfill treemacs-projectile treemacs-icons-dired treemacs-evil toc-org symon string-inflection spaceline-all-the-icons smex smeargle shell-pop restart-emacs request rainbow-delimiters pyvenv pytest pyenv-mode py-isort protobuf-mode popwin pippel pipenv pip-requirements persp-mode pcre2el password-generator paradox overseer orgit org-projectile org-present org-pomodoro org-mime org-download org-bullets org-brain opencl-mode open-junk-file nameless mwim multi-term move-text mmm-mode markdown-toc magit-svn magit-gitflow macrostep lorem-ipsum live-py-mode link-hint json-mode ivy-yasnippet ivy-xref ivy-rtags ivy-purpose ivy-hydra indent-guide hungry-delete htmlize hl-todo highlight-parentheses highlight-numbers highlight-indentation helm-make google-translate google-c-style golden-ratio gnuplot gitignore-templates gitignore-mode gitconfig-mode gitattributes-mode git-timemachine git-messenger git-link gh-md ggtags fuzzy font-lock+ flx-ido fill-column-indicator fancy-battery eyebrowse expand-region evil-visualstar evil-visual-mark-mode evil-unimpaired evil-tutor evil-surround evil-org evil-numbers evil-nerd-commenter evil-matchit evil-magit evil-lisp-state evil-lion evil-indent-plus evil-iedit-state evil-goggles evil-exchange evil-escape evil-ediff evil-cleverparens evil-args evil-anzu eval-sexp-fu eshell-z eshell-prompt-extras esh-help elisp-slime-nav editorconfig dumb-jump dotenv-mode doom-modeline disaster diminish define-word cython-mode cuda-mode counsel-projectile counsel-gtags counsel-dash company-statistics company-rtags company-c-headers company-anaconda column-enforce-mode cmake-mode cmake-ide clean-aindent-mode clang-format centered-cursor-mode auto-yasnippet auto-highlight-symbol auto-compile aggressive-indent ace-link ac-ispell))
+   '(typit ox-hugo toml-mode ron-mode racer flycheck-rust cargo rust-mode insert-shebang helm-gtags flycheck-bashate fish-mode company-shell command-log-mode unicode-fonts add-node-modules-path rspec-mode robe rbenv rake prettier-js ocp-indent ob-elixir nodejs-repl mvn minitest merlin-eldoc meghanada maven-test-mode lsp-java livid-mode skewer-mode simple-httpd json-navigator hierarchy js2-refactor multiple-cursors js2-mode js-doc groovy-imports pcache git-gutter-fringe+ fringe-helper git-gutter+ flycheck-ocaml merlin flycheck-credo dune chruby bundler inf-ruby browse-at-remote alchemist elixir-mode minions linum-relative helm-core doom-themes solarized-theme color-theme-solarized color-theme-sanityinc-solarized helm-ag pdf-tools groovy-mode gradle-mode exec-path-from-shell sunshine dockerfile-mode lsp-ui lsp-python cquery company-lsp ccls lsp-mode zeal-at-point yasnippet-snippets yapfify yaml-mode xterm-color xcscope ws-butler writeroom-mode winum which-key wgrep volatile-highlights vi-tilde-fringe uuidgen use-package unfill treemacs-projectile treemacs-icons-dired treemacs-evil toc-org symon string-inflection spaceline-all-the-icons smex smeargle shell-pop restart-emacs request rainbow-delimiters pyvenv pytest pyenv-mode py-isort protobuf-mode popwin pippel pipenv pip-requirements persp-mode pcre2el password-generator paradox overseer orgit org-projectile org-present org-pomodoro org-mime org-download org-bullets org-brain opencl-mode open-junk-file nameless mwim multi-term move-text mmm-mode markdown-toc magit-svn magit-gitflow macrostep lorem-ipsum live-py-mode link-hint json-mode ivy-yasnippet ivy-xref ivy-rtags ivy-purpose ivy-hydra indent-guide hungry-delete htmlize hl-todo highlight-parentheses highlight-numbers highlight-indentation helm-make google-translate google-c-style golden-ratio gnuplot gitignore-templates gitignore-mode gitconfig-mode gitattributes-mode git-timemachine git-messenger git-link gh-md ggtags fuzzy font-lock+ flx-ido fill-column-indicator fancy-battery eyebrowse expand-region evil-visualstar evil-visual-mark-mode evil-unimpaired evil-tutor evil-surround evil-org evil-numbers evil-nerd-commenter evil-matchit evil-magit evil-lisp-state evil-lion evil-indent-plus evil-iedit-state evil-goggles evil-exchange evil-escape evil-ediff evil-cleverparens evil-args evil-anzu eval-sexp-fu eshell-z eshell-prompt-extras esh-help elisp-slime-nav editorconfig dumb-jump dotenv-mode doom-modeline disaster diminish define-word cython-mode cuda-mode counsel-projectile counsel-gtags counsel-dash company-statistics company-rtags company-c-headers company-anaconda column-enforce-mode cmake-mode cmake-ide clean-aindent-mode clang-format centered-cursor-mode auto-yasnippet auto-highlight-symbol auto-compile aggressive-indent ace-link ac-ispell))
  '(pdf-view-resize-factor 1.05)
  '(safe-local-variable-values
-   '((eval font-lock-add-keywords nil
+   '((org-todo-keyword-faces
+      ("TODO" . "yellow")
+      ("URGENT" . "red")
+      ("DEFER" . "orange")
+      ("DONE" . "green")
+      ("CANCEL" . "gray"))
+     (eval font-lock-add-keywords nil
            `((,(concat "("
                        (regexp-opt
                         '("sp-do-move-op" "sp-do-move-cl" "sp-do-put-op" "sp-do-put-cl" "sp-do-del-op" "sp-do-del-cl")
@@ -595,6 +615,5 @@ This function is called at the very end of Spacemacs initialization."
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(helm-selection ((t (:inherit bold :background "dark magenta" :foreground "gainsboro"))))
- '(hl-line ((t nil))))
+ '(helm-selection ((t (:inherit bold :background "dark magenta" :foreground "gainsboro")))))
 )

@@ -11,12 +11,16 @@
 (spacemacs/set-leader-keys "od" 'zeal-at-point)
 
 (define-key evil-insert-state-map (kbd "C-c C-c") 'evil-normal-state)
+(define-key evil-insert-state-map (kbd "C-c C-f") 'company-files)
 (define-key evil-normal-state-map (kbd "C-c C-c") 'evil-normal-state)
 (define-key evil-insert-state-map (kbd "C-a") 'mwim-beginning-of-code-or-line)
 (define-key evil-insert-state-map (kbd "C-e") 'mwim-end-of-line-or-code)
 
-(add-hook 'term-mode-hook
-          (lambda nil (define-key term-raw-map "\C-c\C-z" 'term-stop-subjob)))
+(with-eval-after-load 'vterm
+  (add-hook 'vterm-mode-hook
+            (lambda nil
+              (define-key vterm-mode-map (kbd "C-v") 'vterm-send-C-v)
+              (define-key vterm-mode-map (kbd "C-c C-z") 'vterm-send-C-z))))
 
 (global-set-key (kbd "M-/") 'yas-expand)
 
