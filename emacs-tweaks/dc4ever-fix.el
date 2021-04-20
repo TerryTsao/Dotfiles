@@ -38,12 +38,12 @@ when we are calling with 'prefix command"
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defun spacemacs//pyenv-mode-set-local-version ()
-  (interactive)
-  (setenv "PYENV_VERSION" nil)
-  (let ((version
-         (string-trim (shell-command-to-string "pyenv version-name"))))
-    (pyenv-mode-set version)))
+;; (defun spacemacs//pyenv-mode-set-local-version ()
+;;   (interactive)
+;;   (setenv "PYENV_VERSION" nil)
+;;   (let ((version
+;;          (string-trim (shell-command-to-string "pyenv version-name"))))
+;;     (pyenv-mode-set version)))
 
 (with-eval-after-load 'projectile
   (advice-add 'projectile-ensure-project :filter-return

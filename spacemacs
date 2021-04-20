@@ -32,13 +32,17 @@ This function should only modify configuration layer settings."
 
    ;; List of configuration layers to load.
    dotspacemacs-configuration-layers
-   '(rust
+   '(
+     rust
      shell-scripts
      html
      cmake
      emoji
+     lsp
      ivy
+     tabs
      ;; helm
+     ;; helpful
      (python :variables
              python-backend 'anaconda
              ;; python-backend 'lsp
@@ -56,19 +60,21 @@ This function should only modify configuration layer settings."
      markdown
      gnus
      (org :variables
-          org-enable-hugo-support t)
+          org-enable-hugo-support t
+          org-enable-reveal-js-support t
+          )
      protobuf
      asm
-     cscope
+     ;; semantic
      yaml
      slack
-     treemacs
+     ;; treemacs
      (auto-completion :variables
                       auto-completion-return-key-behavior 'complete
                       auto-completion-tab-key-behavior 'cycle
                       auto-completion-complete-with-key-sequence-delay 0.3
                       auto-completion-enable-sort-by-usage nil)
-     dap
+     ;; dap
      (c-c++ :variables
             c-c++-default-mode-for-headers 'c++-mode
             c-c++-backend 'lsp-ccls
@@ -262,7 +268,7 @@ It should only modify the values of Spacemacs settings."
 
    ;; Default font or prioritized list of fonts.
    dotspacemacs-default-font '("Source Code Pro"
-                               :size 20
+                               :size 19
                                :weight normal
                                :width normal
                                :powerline-scale 1.3)
@@ -415,12 +421,13 @@ It should only modify the values of Spacemacs settings."
    ;;   :size-limit-kb 1000)
    ;; When used in a plist, `visual' takes precedence over `relative'.
    ;; (default nil)
-   dotspacemacs-line-numbers '(:relative t :visual t :disabled-for-modes dired-mode
-                                         doc-view-mode
-                                         markdown-mode
-                                         org-mode
-                                         pdf-view-mode
-                                         text-mode)
+   dotspacemacs-line-numbers nil
+   ;; dotspacemacs-line-numbers '(:relative t :visual t :disabled-for-modes dired-mode
+   ;;                                       doc-view-mode
+   ;;                                       markdown-mode
+   ;;                                       org-mode
+   ;;                                       pdf-view-mode
+   ;;                                       text-mode)
 
    ;; Code folding method. Possible values are `evil' and `origami'.
    ;; (default 'evil)
@@ -453,7 +460,7 @@ It should only modify the values of Spacemacs settings."
 
    ;; If non-nil, advise quit functions to keep server open when quitting.
    ;; (default nil)
-   dotspacemacs-persistent-server nil
+   dotspacemacs-persistent-server t
 
    ;; List of search tool executable names. Spacemacs uses the first installed
    ;; tool of the list. Supported tools are `rg', `ag', `pt', `ack' and `grep'.
@@ -545,8 +552,7 @@ you should place your code here."
   (require 'dc4ever-better-defaults)
   (require 'dc4ever)
   (require 'dc4ever-kbd)
-  (require 'dc4ever-fix)
-  )
+  (require 'dc4ever-fix))
 
 ;; Do not write anything past this comment. This is where Emacs will
 ;; auto-generate custom variable definitions.
@@ -560,7 +566,9 @@ This function is called at the very end of Spacemacs initialization."
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(Man-notify-method 'aggressive)
+ '(Man-notify-method 'bully)
+ '(centaur-tabs-set-close-button nil)
+ '(centaur-tabs-style "wave")
  '(cmake-tab-width 4)
  '(company-backends
    '(company-anaconda company-files
@@ -576,6 +584,7 @@ This function is called at the very end of Spacemacs initialization."
  '(ivy-count-format "(%d/%d) ")
  '(lsp-enable-file-watchers nil)
  '(lsp-file-watch-threshold 1000)
+ '(lsp-headerline-breadcrumb-enable t)
  '(lsp-python-ms-cache "Library")
  '(lsp-ui-doc-position 'top)
  '(org-agenda-files
@@ -586,8 +595,9 @@ This function is called at the very end of Spacemacs initialization."
      (gnus . org-gnus-no-new-news)
      (file . find-file)
      (wl . wl-other-frame)))
+ '(org-re-reveal-root "/data/terrytsao/software/reveal.js-master/")
  '(package-selected-packages
-   '(typit ox-hugo toml-mode ron-mode racer flycheck-rust cargo rust-mode insert-shebang helm-gtags flycheck-bashate fish-mode company-shell command-log-mode unicode-fonts add-node-modules-path rspec-mode robe rbenv rake prettier-js ocp-indent ob-elixir nodejs-repl mvn minitest merlin-eldoc meghanada maven-test-mode lsp-java livid-mode skewer-mode simple-httpd json-navigator hierarchy js2-refactor multiple-cursors js2-mode js-doc groovy-imports pcache git-gutter-fringe+ fringe-helper git-gutter+ flycheck-ocaml merlin flycheck-credo dune chruby bundler inf-ruby browse-at-remote alchemist elixir-mode minions linum-relative helm-core doom-themes solarized-theme color-theme-solarized color-theme-sanityinc-solarized helm-ag pdf-tools groovy-mode gradle-mode exec-path-from-shell sunshine dockerfile-mode lsp-ui lsp-python cquery company-lsp ccls lsp-mode zeal-at-point yasnippet-snippets yapfify yaml-mode xterm-color xcscope ws-butler writeroom-mode winum which-key wgrep volatile-highlights vi-tilde-fringe uuidgen use-package unfill treemacs-projectile treemacs-icons-dired treemacs-evil toc-org symon string-inflection spaceline-all-the-icons smex smeargle shell-pop restart-emacs request rainbow-delimiters pyvenv pytest pyenv-mode py-isort protobuf-mode popwin pippel pipenv pip-requirements persp-mode pcre2el password-generator paradox overseer orgit org-projectile org-present org-pomodoro org-mime org-download org-bullets org-brain opencl-mode open-junk-file nameless mwim multi-term move-text mmm-mode markdown-toc magit-svn magit-gitflow macrostep lorem-ipsum live-py-mode link-hint json-mode ivy-yasnippet ivy-xref ivy-rtags ivy-purpose ivy-hydra indent-guide hungry-delete htmlize hl-todo highlight-parentheses highlight-numbers highlight-indentation helm-make google-translate google-c-style golden-ratio gnuplot gitignore-templates gitignore-mode gitconfig-mode gitattributes-mode git-timemachine git-messenger git-link gh-md ggtags fuzzy font-lock+ flx-ido fill-column-indicator fancy-battery eyebrowse expand-region evil-visualstar evil-visual-mark-mode evil-unimpaired evil-tutor evil-surround evil-org evil-numbers evil-nerd-commenter evil-matchit evil-magit evil-lisp-state evil-lion evil-indent-plus evil-iedit-state evil-goggles evil-exchange evil-escape evil-ediff evil-cleverparens evil-args evil-anzu eval-sexp-fu eshell-z eshell-prompt-extras esh-help elisp-slime-nav editorconfig dumb-jump dotenv-mode doom-modeline disaster diminish define-word cython-mode cuda-mode counsel-projectile counsel-gtags counsel-dash company-statistics company-rtags company-c-headers company-anaconda column-enforce-mode cmake-mode cmake-ide clean-aindent-mode clang-format centered-cursor-mode auto-yasnippet auto-highlight-symbol auto-compile aggressive-indent ace-link ac-ispell))
+   '(sudoku 2048-game helpful elisp-refs parinfer typit ox-hugo toml-mode ron-mode racer flycheck-rust cargo rust-mode insert-shebang helm-gtags flycheck-bashate fish-mode company-shell command-log-mode unicode-fonts add-node-modules-path rspec-mode robe rbenv rake prettier-js ocp-indent ob-elixir nodejs-repl mvn minitest merlin-eldoc meghanada maven-test-mode lsp-java livid-mode skewer-mode simple-httpd json-navigator hierarchy js2-refactor multiple-cursors js2-mode js-doc groovy-imports pcache git-gutter-fringe+ fringe-helper git-gutter+ flycheck-ocaml merlin flycheck-credo dune chruby bundler inf-ruby browse-at-remote alchemist elixir-mode minions linum-relative helm-core doom-themes solarized-theme color-theme-solarized color-theme-sanityinc-solarized helm-ag pdf-tools groovy-mode gradle-mode exec-path-from-shell sunshine dockerfile-mode lsp-ui lsp-python cquery company-lsp ccls lsp-mode zeal-at-point yasnippet-snippets yapfify yaml-mode xterm-color xcscope ws-butler writeroom-mode winum which-key wgrep volatile-highlights vi-tilde-fringe uuidgen use-package unfill treemacs-projectile treemacs-icons-dired treemacs-evil toc-org symon string-inflection spaceline-all-the-icons smex smeargle shell-pop restart-emacs request rainbow-delimiters pyvenv pytest pyenv-mode py-isort protobuf-mode popwin pippel pipenv pip-requirements persp-mode pcre2el password-generator paradox overseer orgit org-projectile org-present org-pomodoro org-mime org-download org-bullets org-brain opencl-mode open-junk-file nameless mwim multi-term move-text mmm-mode markdown-toc magit-svn magit-gitflow macrostep lorem-ipsum live-py-mode link-hint json-mode ivy-yasnippet ivy-xref ivy-rtags ivy-purpose ivy-hydra indent-guide hungry-delete htmlize hl-todo highlight-parentheses highlight-numbers highlight-indentation helm-make google-translate google-c-style golden-ratio gnuplot gitignore-templates gitignore-mode gitconfig-mode gitattributes-mode git-timemachine git-messenger git-link gh-md ggtags fuzzy font-lock+ flx-ido fill-column-indicator fancy-battery eyebrowse expand-region evil-visualstar evil-visual-mark-mode evil-unimpaired evil-tutor evil-surround evil-org evil-numbers evil-nerd-commenter evil-matchit evil-magit evil-lisp-state evil-lion evil-indent-plus evil-iedit-state evil-goggles evil-exchange evil-escape evil-ediff evil-cleverparens evil-args evil-anzu eval-sexp-fu eshell-z eshell-prompt-extras esh-help elisp-slime-nav editorconfig dumb-jump dotenv-mode doom-modeline disaster diminish define-word cython-mode cuda-mode counsel-projectile counsel-gtags counsel-dash company-statistics company-rtags company-c-headers company-anaconda column-enforce-mode cmake-mode cmake-ide clean-aindent-mode clang-format centered-cursor-mode auto-yasnippet auto-highlight-symbol auto-compile aggressive-indent ace-link ac-ispell))
  '(pdf-view-resize-factor 1.05)
  '(safe-local-variable-values
    '((org-todo-keyword-faces

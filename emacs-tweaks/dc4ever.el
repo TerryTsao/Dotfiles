@@ -1,5 +1,37 @@
 ;; Here lies newly added functions for my own needs
 
+(defun dc4ever/toggle-term (arg)
+  "Easily show/hide terminal buffer. With a prefix argument,
+open project root or current directory, depending on ARG value."
+  (interactive "P")
+  (defvar dc4ever--vterm-buf nil
+    "Store vterm buffer obj singleton")
+  (defvar dc4ever--buf-b4-term nil
+    "Store prev buf obj for internal use.")
+  (prefix-numeric-value nil)
+  (when arg
+    (setq current-prefix-arg nil)
+    (setq arg (prefix-numeric-value arg)))
+  (cl-flet ((term-on nil
+                     (setq dc4ever--buf-b4-term (current-buffer))
+                     (cond
+                      ((or (not (buffer-live-p dc4ever--vterm-buf))
+                           arg)
+                       (if (and arg (>= arg 10))
+                           (spacemacs/projectile-shell-pop)
+                         (spacemacs/default-pop-shell)))
+                      (t (switch-to-buffer dc4ever--vterm-buf)))
+                     (delete-other-windows)
+                     (setq dc4ever--vterm-buf (current-buffer)))
+            (term-off nil
+                      (let ((buf dc4ever--buf-b4-term))
+                        (unless (buffer-live-p buf)
+                          (setq buf (other-buffer)))
+                        (if (and buf (not (eq buf (current-buffer))))
+                            (switch-to-buffer buf)
+                          (spacemacs/switch-to-scratch-buffer)))))
+    (if (eq major-mode 'vterm-mode) (term-off) (term-on))))
+
 (defun dc4ever/org()
   (interactive)
   (find-file "/home/xiaoxiangcao/.org/todo.org"))
