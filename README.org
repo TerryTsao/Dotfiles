@@ -1,0 +1,5 @@
+* Dotfiles
+Current copy of my Dotfiles
+
+* Usage
+Don't use the install script unless you've read it.
