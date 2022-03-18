@@ -1,3 +1,5 @@
+;; -*- lexical-binding: t; -*-
+
 ;; Here lies newly added functions for my own needs
 
 (defun dc4ever/toggle-term (arg)
@@ -47,7 +49,7 @@ open project root or current directory, depending on ARG value."
     (if filename
         (prog2
             (message "Make start...")
-            (async-shell-command
+            (compile
              (concat "cd " (projectile-project-p) "; make -f " filename)))
       (error "No rule to make!"))))
 (defun dc4ever/edit-makefile ()
@@ -63,6 +65,9 @@ open project root or current directory, depending on ARG value."
   (message "Restart has been disabled for obvious reasons!"))
 
 (with-eval-after-load 'slack
+  (defvar slack-enable-wysiwyg)
+  (defvar slack-emoji-master)
+  (defvar slack-teams-by-token)
   (slack-register-team
    :name "deepmotion"
    :default t
@@ -88,6 +93,8 @@ open project root or current directory, depending on ARG value."
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; `org-capture-templates' setup
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defvar org-capture-templates)
+
 (setq org-capture-templates
       '(("w" "work" entry (file "~/Dropbox/org/work.org")
          "* TODO %?\n" :prepend t)
@@ -95,5 +102,35 @@ open project root or current directory, depending on ARG value."
          "* TODO %?\n" :prepend t)
         ("b" "balance" entry (file "~/Dropbox/org/balance.org")
          "* TODO %?\n" :prepend t)))
+
+(require 'url)
+(url-do-setup)
+(url-scheme-register-proxy "http")
+(url-scheme-register-proxy "https")
+
+;; (use-package rime
+;;   :ensure t
+;;   :custom
+;;   (default-input-method "rime"))
+
+(with-eval-after-load 'compile
+  (defun dc4ever//comp-ff:advice (args)
+    "Advice `compilation-find-file' when running on server."
+    (let ((filename (cadr args)))
+      (when (and
+             (f-absolute? filename)
+             (not (f-exists? filename)))
+        (let ((flist (cons "." (s-split "/" filename :ignore-empty))))
+          (setq filename
+                (catch 'ret
+                  (while t
+                    (let ((fn (s-join "/" flist)))
+                      (print fn)
+                      (when (f-file? fn) (throw 'ret fn)))
+                    (setcdr flist (cddr flist)))))))
+      (setcdr args (cons filename (cddr args))))
+    args)
+  (advice-add #'compilation-find-file
+              :filter-args #'dc4ever//comp-ff:advice))
 
 (provide 'dc4ever)

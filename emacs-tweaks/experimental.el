@@ -1,5 +1,9 @@
+;; -*- lexical-binding: t; -*-
+
 ;; (advice-remove 'company-capf 'dc4ever/capf-wrapper)
 ;; (advice-remove 'company--capf-data 'dc4ever/filter-capf-lsp-retval)
+
+(defun )
 
 🐍
 (aref char-script-table ?🐍)
@@ -7,13 +11,54 @@
 ⃤
 🛆
 
+(cond ((and (boundp 'once-yas-type)
+            (eq once-yas-type 'jiangbin-style))
+       "kdsjfkdsjf")
+      (t
+       (let ((root (if (boundp 'micah-clang-proj-root)
+                       micah-clang-proj-root
+                     ""))
+             (p (file-relative-name default-directory (projectile-project-root)))
+             (f (f-filename (buffer-file-name))))
+         (upcase (s-join "_"
+                         (append (cons root (s-split "/" p t)) (s-split "\\." f) (list "")))))))
+
+(defun dc4ever/fix-eaf-refactor-autoload nil
+  "EAF refactor brings autoload issues. This is my attempt to fix it."
+  (interactive))
+(let* ((root (f-dirname (find-lisp-object-file-name 'eaf-open 'defun)))
+       (appdir (expand-file-name "app" root))
+       (apps (-map (lambda (d) (f-filename d)) (f-directories appdir))))
+  (cl-loop
+   for app in apps
+   do
+   (let ((f (format "eaf-%s.el" app))
+         (atl (expand-file-name "eaf-autoloads.el" root))
+         (d (expand-file-name app appdir)))
+     (let ((path (expand-file-name f d)))
+       (when (f-exists? path)
+         ;; (find-file path)
+         ;; (goto-char (point-min))
+         ;; (insert "(require 'eaf)")
+         ;; (save-buffer)
+         ;; (kill-buffer)
+         (make-directory-autoloads d atl))))))
+
 (list-fonts (font-spec :weight 'normal))
 (set-fontset-font nil ?🐍 "Noto Color Emoji")
-(set-fontset-font nil ? "Linux Libertine Mono O")
-(set-fontset-font nil 'symbol "Noto Color Emoji" nil 'append)
-(set-fontset-font nil 'symbol "Symbola" nil 'append)
+(set-fontset-font nil ?  "Linux Libertine Mono O" nil 'prepend)
+(set-fontset-font nil 'symbol "Noto Color Emoji" nil 'prepend)
+(set-fontset-font nil 'symbol "Symbola" nil 'prepend)
 
 (lambda nil nil)
+
+(-filter
+ (lambda (name)
+   (if-let ((spec (find-font (font-spec :name name)))
+            (font (open-font spec)))
+       (let ((ret (font-get-glyphs font 0 1 [?])))
+         (not (equal [nil] ret)))))
+ (-uniq (font-family-list)))
 
 (defun tmp nil
   (prettify-symbols-mode -1)
@@ -33,25 +78,24 @@
                              and collect (cons 'Br 'Bl))))))
   (prettify-symbols-mode t))
 
+(defvar dc4ever--start-pt nil)
+
+(defun dc4ever/vterm-dabbrev-commit nil
+  (interactive)
+  (define-key vterm-mode-map (kbd "SPC") #'vterm--self-insert)
+  (setq-local inhibit-read-only nil)
+  (vterm-insert
+   (s-chop-prefix dabbrev--last-abbreviation dabbrev--last-expansion)))
+
 (defun dc4ever/vterm-evil-C-n nil
   ""
   (interactive)
-  (defvar dc4ever--start-pt nil)
+  ;; (define-key vterm-mode-map (kbd "SPC") #'dc4ever/vterm-dabbrev-commit)
   (let ((inhibit-read-only t))
-    (setq dc4ever--start-pt
-          (if (eq last-command this-command)
-              dc4ever--start-pt
-            (point)))
     (dabbrev-expand nil)
-    (cl-flet ((dc4ever/vterm-commit-C-n
-               nil
-               (interactive)
-               (vterm-send-string
-                (buffer-substring-no-properties dc4ever--start-pt (point)))
-               (define-key vterm-mode-map (kbd "SPC") #'vterm--self-insert)))
-      (define-key vterm-mode-map (kbd "SPC") #'dc4ever/vterm-commit-C-n))))
+    (vterm-insert
+     (s-chop-prefix dabbrev--last-abbreviation dabbrev--last-expansion))))
 
-(define-key vterm-mode-map (kbd "C-n") #'dc4ever/vterm-evil-C-n)
 (define-key vterm-mode-map (kbd "C-n") #'vterm-send-C-n)
 
 (tmp)
@@ -135,4 +179,31 @@
                                     'font-lock-face 'magit-branch-local) ?\s)
                 (insert (funcall magit-log-format-message-function
                                  it-branch summary) ?\n)))))))))
+
+(defun find-recent-dirs (dir)
+  (interactive
+   (list (completing-read "Recent dirs: "
+                          (-uniq  (-filter (lambda (p) (and (not (file-remote-p p))
+                                                       (f-directory? p)))
+                                           (-map #'f-dirname recentf-list))))))
+  (find-file dir))
+
+(defun locate-my-url-proxy (urlobj host)
+  (cond
+   ((string-match-p "\\.ec2\\.internal" host)
+    "PROXY ip-10-0-37-237.ec2.internal:8081")
+   (t "DIRECT")))
+
+;;; returns "http://ip-10-0-37-237.ec2.internal:8081/"
+(let ((url-proxy-locator #'locate-my-url-proxy)
+      (urlobj (url-generic-parse-url "https://sldjf.ec2.internal/jdsklfj")))
+  (url-find-proxy-for-url urlobj (url-host urlobj)))
+
+(let ((s (browse-url-file-url "/home/xiaoxiangcao/sandbox/emacs-workshop/README.html")))
+  (cl-labels ((pred (s)
+                    (let ((url (url-generic-parse-url s)))
+                      (when (string-equal "file" (url-type url))
+                        (let ((f (url-filename url)))
+                          (f-file? (f-join (f-dirname f) (concat (f-base f) ".org"))))))))
+    (pred s)))
 

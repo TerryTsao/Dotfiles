@@ -33,14 +33,14 @@ This function should only modify configuration layer settings."
    ;; List of configuration layers to load.
    dotspacemacs-configuration-layers
    '(
-     rust
      shell-scripts
      html
+     ;; unicode-fonts
+     eaf
      cmake
-     emoji
      lsp
+     ibuffer
      ivy
-     tabs
      ;; helm
      ;; helpful
      (python :variables
@@ -55,26 +55,27 @@ This function should only modify configuration layer settings."
      ;; <M-m f e R> (Emacs style) to install them.
      ;; ----------------------------------------------------------------
      better-defaults
+     pdf
      emacs-lisp
      git
      markdown
      gnus
      (org :variables
-          org-enable-hugo-support t
+          org-enable-hugo-support nil
           org-enable-reveal-js-support t
           )
      protobuf
      asm
      ;; semantic
      yaml
-     slack
+     ;; slack
      ;; treemacs
      (auto-completion :variables
                       auto-completion-return-key-behavior 'complete
                       auto-completion-tab-key-behavior 'cycle
                       auto-completion-complete-with-key-sequence-delay 0.3
                       auto-completion-enable-sort-by-usage nil)
-     ;; dap
+     dap
      (c-c++ :variables
             c-c++-default-mode-for-headers 'c++-mode
             c-c++-backend 'lsp-ccls
@@ -86,6 +87,7 @@ This function should only modify configuration layer settings."
             shell-default-position 'right
             shell-default-term-shell "/usr/bin/fish"
             shell-default-shell 'vterm
+            spacemacs-vterm-history-file-location "~/.local/share/fish/fish_history"
             )
      ;; spell-checking
      ;; syntax-checking
@@ -102,12 +104,16 @@ This function should only modify configuration layer settings."
    ;; '(your-package :location "~/path/to/your-package/")
    ;; Also include the dependencies as they will not be resolved automatically.
    dotspacemacs-additional-packages '(
+                                      rime
+                                      bazel
+                                      redshift-indent
+                                      2048-game
                                       groovy-mode
+                                      toml-mode
                                       treemacs-icons-dired
                                       json-mode
                                       opencl-mode
                                       dockerfile-mode
-                                      pdf-tools
                                       sunshine
                                       exec-path-from-shell
                                       )
@@ -116,7 +122,12 @@ This function should only modify configuration layer settings."
    dotspacemacs-frozen-packages '()
 
    ;; A list of packages that will not be installed and loaded.
-   dotspacemacs-excluded-packages '(importmagic)
+   dotspacemacs-excluded-packages '(importmagic
+                                    imenu-list
+                                    evil-escape
+                                    window-purpose
+                                    ivy-purpose
+                                    eyebrowse)
 
    ;; Defines the behaviour of Spacemacs when installing packages.
    ;; Possible values are `used-only', `used-but-keep-unused' and `all'.
@@ -132,15 +143,10 @@ This function should only modify configuration layer settings."
 This function is called at the very beginning of Spacemacs startup,
 before layer configuration.
 It should only modify the values of Spacemacs settings."
-  (setq configuration-layer-elpa-archives
-        '(
-          ;; ("melpa-cn" . "http://mirrors.tuna.tsinghua.edu.cn/elpa/melpa/")
-          ;; ("org-cn"   . "http://mirrors.tuna.tsinghua.edu.cn/elpa/org/")
-          ;; ("gnu-cn"   . "http://mirrors.tuna.tsinghua.edu.cn/elpa/gnu/")
-          ("melpa" . "/data/terrytsao/elpamirror/melpa")
-          ("gnu"   . "/data/terrytsao/elpamirror/gnu")
-          ("org"   . "/data/terrytsao/elpamirror/org")
-          ))
+(setq configuration-layer-elpa-archives
+    '(("melpa-cn" . "http://mirrors.tuna.tsinghua.edu.cn/elpa/melpa/")
+      ("gnu-cn" . "http://mirrors.tuna.tsinghua.edu.cn/elpa/gnu/")))
+
   ;; This setq-default sexp is an exhaustive list of all the supported
   ;; spacemacs settings.
   (setq-default
@@ -181,9 +187,18 @@ It should only modify the values of Spacemacs settings."
    ;; (default '(100000000 0.1))
    dotspacemacs-gc-cons '(100000000 0.1)
 
+   ;; Set `read-process-output-max' when startup finishes.
+   ;; This defines how much data is read from a foreign process.
+   ;; Setting this >= 1 MB should increase performance for lsp servers
+   ;; in emacs 27.
+   ;; (default (* 1024 1024))
+   dotspacemacs-read-process-output-max (* 1024 1024)
+
    ;; If non-nil then Spacelpa repository is the primary source to install
    ;; a locked version of packages. If nil then Spacemacs will install the
-   ;; latest version of packages from MELPA. (default nil)
+   ;; latest version of packages from MELPA. Spacelpa is currently in
+   ;; experimental state please use only for testing purposes.
+   ;; (default nil)
    dotspacemacs-use-spacelpa nil
 
    ;; If non-nil then verify the signature for downloaded Spacelpa archives.
@@ -209,6 +224,11 @@ It should only modify the values of Spacemacs settings."
    ;; (default 'vim)
    dotspacemacs-editing-style 'vim
 
+   ;; If non-nil show the version string in the Spacemacs buffer. It will
+   ;; appear as (spacemacs version)@(emacs version)
+   ;; (default t)
+   dotspacemacs-startup-buffer-show-version t
+
    ;; Specify the startup banner. Default value is `official', it displays
    ;; the official spacemacs logo. An integer value is the index of text
    ;; banner, `random' chooses a random text banner in `core/banners'
@@ -220,9 +240,13 @@ It should only modify the values of Spacemacs settings."
    ;; List of items to show in startup buffer or an association list of
    ;; the form `(list-type . list-size)`. If nil then it is disabled.
    ;; Possible values for list-type are:
-   ;; `recents' `bookmarks' `projects' `agenda' `todos'.
+   ;; `recents' `recents-by-project' `bookmarks' `projects' `agenda' `todos'.
    ;; List sizes may be nil, in which case
    ;; `spacemacs-buffer-startup-lists-length' takes effect.
+   ;; The exceptional case is `recents-by-project', where list-type must be a
+   ;; pair of numbers, e.g. `(recents-by-project . (7 .  5))', where the first
+   ;; number is the project limit and the second the limit on the recent files
+   ;; within a project.
    dotspacemacs-startup-lists '((recents . 5)
                                 (projects . 7))
 
@@ -236,6 +260,14 @@ It should only modify the values of Spacemacs settings."
 
    ;; Default major mode of the scratch buffer (default `text-mode')
    dotspacemacs-scratch-mode 'text-mode
+
+   ;; If non-nil, *scratch* buffer will be persistent. Things you write down in
+   ;; *scratch* buffer will be saved and restored automatically.
+   dotspacemacs-scratch-buffer-persistent nil
+
+   ;; If non-nil, `kill-buffer' on *scratch* buffer
+   ;; will bury it instead of killing.
+   dotspacemacs-scratch-buffer-unkillable nil
 
    ;; Initial message in the scratch buffer, such as "Welcome to Spacemacs!"
    ;; (default nil)
@@ -266,7 +298,9 @@ It should only modify the values of Spacemacs settings."
    ;; (default t)
    dotspacemacs-colorize-cursor-according-to-state t
 
-   ;; Default font or prioritized list of fonts.
+   ;; Default font or prioritized list of fonts. The `:size' can be specified as
+   ;; a non-negative integer (pixel size), or a floating-point (point size).
+   ;; Point size is recommended, because it's device independent. (default 10.0)
    dotspacemacs-default-font '("Source Code Pro"
                                :size 19
                                :weight normal
@@ -292,8 +326,10 @@ It should only modify the values of Spacemacs settings."
    dotspacemacs-major-mode-leader-key ","
 
    ;; Major mode leader key accessible in `emacs state' and `insert state'.
-   ;; (default "C-M-m")
-   dotspacemacs-major-mode-emacs-leader-key "C-M-m"
+   ;; (default "C-M-m" for terminal mode, "<M-return>" for GUI mode).
+   ;; Thus M-RET should work as leader key in both GUI and terminal modes.
+   ;; C-M-m also should work in terminal mode, but not in GUI mode.
+   dotspacemacs-major-mode-emacs-leader-key (if window-system "<M-return>" "C-M-m")
 
    ;; These variables control whether separate commands are bound in the GUI to
    ;; the key pairs `C-i', `TAB' and `C-m', `RET'.
@@ -422,12 +458,6 @@ It should only modify the values of Spacemacs settings."
    ;; When used in a plist, `visual' takes precedence over `relative'.
    ;; (default nil)
    dotspacemacs-line-numbers nil
-   ;; dotspacemacs-line-numbers '(:relative t :visual t :disabled-for-modes dired-mode
-   ;;                                       doc-view-mode
-   ;;                                       markdown-mode
-   ;;                                       org-mode
-   ;;                                       pdf-view-mode
-   ;;                                       text-mode)
 
    ;; Code folding method. Possible values are `evil' and `origami'.
    ;; (default 'evil)
@@ -497,6 +527,20 @@ It should only modify the values of Spacemacs settings."
    ;; (default nil)
    dotspacemacs-whitespace-cleanup nil
 
+   ;; If non nil activate `clean-aindent-mode' which tries to correct
+   ;; virtual indentation of simple modes. This can interfer with mode specific
+   ;; indent handling like has been reported for `go-mode'.
+   ;; If it does deactivate it here.
+   ;; (default t)
+   dotspacemacs-use-clean-aindent-mode t
+
+   ;; If non-nil shift your number row to match the entered keyboard layout
+   ;; (only in insert state). Currently supported keyboard layouts are:
+   ;; `qwerty-us', `qwertz-de' and `querty-ca-fr'.
+   ;; New layouts can be added in `spacemacs-editing' layer.
+   ;; (default nil)
+   dotspacemacs-swap-number-row nil
+
    ;; Either nil or a number of seconds. If non-nil zone out after the specified
    ;; number of seconds. (default nil)
    dotspacemacs-zone-out-when-idle nil
@@ -504,7 +548,14 @@ It should only modify the values of Spacemacs settings."
    ;; Run `spacemacs/prettify-org-buffer' when
    ;; visiting README.org files of Spacemacs.
    ;; (default nil)
-   dotspacemacs-pretty-docs nil))
+   dotspacemacs-pretty-docs nil
+
+   ;; If nil the home buffer shows the full path of agenda items
+   ;; and todos. If non nil only the file name is shown.
+   dotspacemacs-home-shorten-agenda-source nil
+
+   ;; If non-nil then byte-compile some of Spacemacs files.
+   dotspacemacs-byte-compile nil))
 
 (defun dotspacemacs/user-env ()
   "Environment variables setup.
@@ -529,6 +580,8 @@ If you are unsure, try setting them in `dotspacemacs/user-config' first."
   (setq python-backend 'company-anaconda)
   (setq python-formatter 'yapf)
   (setq git-magit-status-fullscreen t)
+  (setq custom-file (expand-file-name "~/Dotfiles/emacs-tweaks/.custom.el"))
+  (load custom-file)
   )
 
 (defun dotspacemacs/user-load ()
@@ -548,82 +601,8 @@ you should place your code here."
   (with-eval-after-load 'flycheck
     (lambda nil (add-to-list 'flycheck-disabled-checkers 'python-mypy)))
   (setq dc4ever/tweak-dir "~/Dotfiles/emacs-tweaks/")
-  (add-to-load-path dc4ever/tweak-dir)
+  (add-to-list 'load-path dc4ever/tweak-dir)
   (require 'dc4ever-better-defaults)
   (require 'dc4ever)
   (require 'dc4ever-kbd)
   (require 'dc4ever-fix))
-
-;; Do not write anything past this comment. This is where Emacs will
-;; auto-generate custom variable definitions.
-(defun dotspacemacs/emacs-custom-settings ()
-  "Emacs custom settings.
-This is an auto-generated function, do not modify its content directly, use
-Emacs customize menu instead.
-This function is called at the very end of Spacemacs initialization."
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(Man-notify-method 'bully)
- '(centaur-tabs-set-close-button nil)
- '(centaur-tabs-style "wave")
- '(cmake-tab-width 4)
- '(company-backends
-   '(company-anaconda company-files
-                      (company-dabbrev-code company-gtags company-etags company-keywords)
-                      company-oddmuse company-dabbrev))
- '(counsel-search-engine 'google)
- '(custom-safe-themes
-   '("0598c6a29e13e7112cfbc2f523e31927ab7dce56ebb2016b567e1eff6dc1fd4f" "4aee8551b53a43a883cb0b7f3255d6859d766b6c5e14bcb01bed572fcbef4328" "a8245b7cc985a0610d71f9852e9f2767ad1b852c2bdea6f4aadc12cce9c4d6d0" "428754d8f3ed6449c1078ed5b4335f4949dc2ad54ed9de43c56ea9b803375c23" default))
- '(doom-modeline-minor-modes t)
- '(evil-want-Y-yank-to-eol t)
- '(exec-path-from-shell-check-startup-files t)
- '(flycheck-python-mypy-executable "/home/xiaoxiangcao/.pyenv/versions/env3/bin/mypy")
- '(ivy-count-format "(%d/%d) ")
- '(lsp-enable-file-watchers nil)
- '(lsp-file-watch-threshold 1000)
- '(lsp-headerline-breadcrumb-enable t)
- '(lsp-python-ms-cache "Library")
- '(lsp-ui-doc-position 'top)
- '(org-agenda-files
-   '("~/Dropbox/org/work.org" "~/Dropbox/org/life.org" "~/Dropbox/org/balance.org"))
- '(org-link-frame-setup
-   '((vm . vm-visit-folder-other-frame)
-     (vm-imap . vm-visit-imap-folder-other-frame)
-     (gnus . org-gnus-no-new-news)
-     (file . find-file)
-     (wl . wl-other-frame)))
- '(org-re-reveal-root "/data/terrytsao/software/reveal.js-master/")
- '(package-selected-packages
-   '(sudoku 2048-game helpful elisp-refs parinfer typit ox-hugo toml-mode ron-mode racer flycheck-rust cargo rust-mode insert-shebang helm-gtags flycheck-bashate fish-mode company-shell command-log-mode unicode-fonts add-node-modules-path rspec-mode robe rbenv rake prettier-js ocp-indent ob-elixir nodejs-repl mvn minitest merlin-eldoc meghanada maven-test-mode lsp-java livid-mode skewer-mode simple-httpd json-navigator hierarchy js2-refactor multiple-cursors js2-mode js-doc groovy-imports pcache git-gutter-fringe+ fringe-helper git-gutter+ flycheck-ocaml merlin flycheck-credo dune chruby bundler inf-ruby browse-at-remote alchemist elixir-mode minions linum-relative helm-core doom-themes solarized-theme color-theme-solarized color-theme-sanityinc-solarized helm-ag pdf-tools groovy-mode gradle-mode exec-path-from-shell sunshine dockerfile-mode lsp-ui lsp-python cquery company-lsp ccls lsp-mode zeal-at-point yasnippet-snippets yapfify yaml-mode xterm-color xcscope ws-butler writeroom-mode winum which-key wgrep volatile-highlights vi-tilde-fringe uuidgen use-package unfill treemacs-projectile treemacs-icons-dired treemacs-evil toc-org symon string-inflection spaceline-all-the-icons smex smeargle shell-pop restart-emacs request rainbow-delimiters pyvenv pytest pyenv-mode py-isort protobuf-mode popwin pippel pipenv pip-requirements persp-mode pcre2el password-generator paradox overseer orgit org-projectile org-present org-pomodoro org-mime org-download org-bullets org-brain opencl-mode open-junk-file nameless mwim multi-term move-text mmm-mode markdown-toc magit-svn magit-gitflow macrostep lorem-ipsum live-py-mode link-hint json-mode ivy-yasnippet ivy-xref ivy-rtags ivy-purpose ivy-hydra indent-guide hungry-delete htmlize hl-todo highlight-parentheses highlight-numbers highlight-indentation helm-make google-translate google-c-style golden-ratio gnuplot gitignore-templates gitignore-mode gitconfig-mode gitattributes-mode git-timemachine git-messenger git-link gh-md ggtags fuzzy font-lock+ flx-ido fill-column-indicator fancy-battery eyebrowse expand-region evil-visualstar evil-visual-mark-mode evil-unimpaired evil-tutor evil-surround evil-org evil-numbers evil-nerd-commenter evil-matchit evil-magit evil-lisp-state evil-lion evil-indent-plus evil-iedit-state evil-goggles evil-exchange evil-escape evil-ediff evil-cleverparens evil-args evil-anzu eval-sexp-fu eshell-z eshell-prompt-extras esh-help elisp-slime-nav editorconfig dumb-jump dotenv-mode doom-modeline disaster diminish define-word cython-mode cuda-mode counsel-projectile counsel-gtags counsel-dash company-statistics company-rtags company-c-headers company-anaconda column-enforce-mode cmake-mode cmake-ide clean-aindent-mode clang-format centered-cursor-mode auto-yasnippet auto-highlight-symbol auto-compile aggressive-indent ace-link ac-ispell))
- '(pdf-view-resize-factor 1.05)
- '(safe-local-variable-values
-   '((org-todo-keyword-faces
-      ("TODO" . "yellow")
-      ("URGENT" . "red")
-      ("DEFER" . "orange")
-      ("DONE" . "green")
-      ("CANCEL" . "gray"))
-     (eval font-lock-add-keywords nil
-           `((,(concat "("
-                       (regexp-opt
-                        '("sp-do-move-op" "sp-do-move-cl" "sp-do-put-op" "sp-do-put-cl" "sp-do-del-op" "sp-do-del-cl")
-                        t)
-                       "\\_>")
-              1 'font-lock-variable-name-face)))
-     (encoding . utf-8)))
- '(split-width-threshold 140)
- '(sunshine-appid "2737f04d3df89d1b08bb95e9424b32b1")
- '(sunshine-location "Beijing,CN")
- '(sunshine-show-icons t)
- '(sunshine-units 'metric)
- '(tab-width 8))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(helm-selection ((t (:inherit bold :background "dark magenta" :foreground "gainsboro")))))
-)

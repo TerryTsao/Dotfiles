@@ -1,7 +1,24 @@
+;; -*- lexical-binding: t; -*-
+
+(eval-when-compile
+  (require 'ivy)
+  (require 'evil)
+  (require 'dash))
+
+(defvar evil-insert-state-map)
+(defvar evil-motion-state-map)
+(defvar evil-normal-state-map)
+(defvar counsel-ag-command)
+
+(defcustom dc4ever//rg-common-types
+  (list "c" "cpp" "elisp")
+  "Common file types of `counsel-rg' searches."
+  :type '(repeat string))
+
 (spacemacs/set-leader-keys "om" 'dc4ever/make)
 (spacemacs/set-leader-keys "os" #'counsel-search)
 (spacemacs/set-leader-keys "oe" 'dc4ever/edit-makefile)
-(spacemacs/set-leader-keys "bo" 'switch-buffer-other-window-without-purpose)
+(spacemacs/set-leader-keys "bo" 'switch-to-buffer-other-window)
 (spacemacs/set-leader-keys "oh" 'dc4ever/toggle-write-hook)
 (spacemacs/set-leader-keys "qr" 'dc4ever/disable-restart)
 (spacemacs/set-leader-keys "qR" 'dc4ever/disable-restart)
@@ -10,30 +27,50 @@
 (spacemacs/set-leader-keys "ot" 'dc4ever/org)
 (spacemacs/set-leader-keys "od" 'zeal-at-point)
 
-(define-key evil-insert-state-map (kbd "C-c C-c") 'evil-normal-state)
+;; (define-key evil-insert-state-map (kbd "C-c C-c") 'evil-normal-state)
 (define-key evil-insert-state-map (kbd "C-c C-f") 'company-files)
-(define-key evil-normal-state-map (kbd "C-c C-c") 'evil-normal-state)
+;; (define-key evil-normal-state-map (kbd "C-c C-c") 'evil-normal-state)
 (define-key evil-insert-state-map (kbd "C-a") 'mwim-beginning-of-code-or-line)
 (define-key evil-insert-state-map (kbd "C-e") 'mwim-end-of-line-or-code)
-(define-key evil-motion-state-map (kbd "M-j") 'centaur-tabs-forward)
-(define-key evil-motion-state-map (kbd "M-k") 'centaur-tabs-backward)
+;; (define-key evil-motion-state-map (kbd "M-j") 'centaur-tabs-forward)
+;; (define-key evil-motion-state-map (kbd "M-k") 'centaur-tabs-backward)
 
-(defun dc4ever/vterm-def-key nil
-  "Define keybindings for `vterm-mode'"
-  (define-key vterm-mode-map (kbd "C-v") 'vterm-send-C-v)
-  (define-key vterm-mode-map (kbd "C-c C-z") 'vterm-send-C-z)
-  ;; (define-key vterm-mode-map (kbd "C-n")
-  ;;   (lambda (&optional arg)
-  ;;     "Allow `evil-complete-next' in `vterm-mode'."
-  ;;     (interactive "P")
-  ;;     (let* ((begin (point))
-  ;;            (inhibit-read-only t)
-  ;;            (end (funcall #'evil-complete-next arg))
-  ;;            (s (buffer-substring-no-properties begin end)))
-  ;;       (vterm-send-string s))))
-  )
 (with-eval-after-load 'vterm
-  (add-hook 'vterm-mode-hook #'dc4ever/vterm-def-key))
+  (defvar dc4ever--vterm-info nil)
+  (defun dc4ever/vterm-dabbrev-commit nil
+    "Commit info back to `vterm' buffer."
+    (interactive)
+    (let ((s (buffer-substring-no-properties (cdr dc4ever--vterm-info) (point))))
+      (kill-buffer-and-window)
+      (switch-to-buffer (car dc4ever--vterm-info))
+      (vterm-insert s)))
+
+  (defun dc4ever/vterm-evil-C-n (arg)
+    "Create a helper buffer to use `evil-complete-next' for `vterm-insert'.
+With prefix arg, enable \"I'm Feeling Lucky\"."
+    (interactive "P")
+    (let ((buf (get-buffer-create "vterm-dabbrev"))
+          (vb (current-buffer))
+          (start (+ 2 (save-excursion (beginning-of-line) (point))))
+          (end (point)))
+      (switch-to-buffer-other-window buf)
+      (insert-buffer-substring vb start end)
+      (let ((inhibit-message t))
+        (call-interactively #'evil-append-line))
+      (setq dc4ever--vterm-info (cons vb (point)))
+      (if arg
+          (progn
+            (ignore-errors (dabbrev-expand nil))
+            (dc4ever/vterm-dabbrev-commit))
+        (local-set-key (kbd "RET") #'dc4ever/vterm-dabbrev-commit))))
+
+  (define-key vterm-mode-map (kbd "C-n") #'dc4ever/vterm-evil-C-n)
+
+  (defun dc4ever//vterm-enable-C-n nil
+    "Enable `dc4ever/vterm-evil-C-n'"
+    (define-key evil-insert-state-local-map (kbd "C-n") #'dc4ever/vterm-evil-C-n)
+    (define-key evil-insert-state-local-map (kbd "C-u") #'universal-argument))
+  (add-hook 'vterm-mode-hook #'dc4ever//vterm-enable-C-n))
 
 (global-set-key (kbd "M-/") 'yas-expand)
 
@@ -59,20 +96,13 @@ cache inside `dc4ever//rg-type-cache'"
             (message "rg exited with error code %d" res)))
         (setq rlt (buffer-string)))
       (setq lines (split-string rlt "\n" t))
-      (-map
-       (lambda (line)
-         (--> line
-              (split-string it ":")
-              (s-join "\t" it))) lines)))
+      (-map (lambda (l) (--> l
+                     (split-string it ":")
+                     (s-join "\t" it))) lines)))
 
   (defvar dc4ever//rg-type-cache
     (lazy-completion-table dc4ever//rg-type-cache dc4ever--get-rg-type-list)
     "Cache of `counsel-rg' type list.")
-
-  (defcustom dc4ever//rg-common-types
-    (list "c" "cpp" "elisp")
-    "Common file types of `counsel-rg' searches."
-    :type '(repeat string))
 
   (defun dc4ever--read-rg-type-list (arg)
     "Read file type from user input.
@@ -114,6 +144,46 @@ Refer to helper function `dc4ever--read-rg-type-list'."
 
   (let ((map ivy-minibuffer-map))
     (ivy-define-key map (kbd "C-c <C-i>") #'dc4ever/rg-add-ignore)
+    (ivy-define-key map (kbd "C-c C-c") #'ivy-toggle-calling)
     (ivy-define-key map (kbd "C-c C-t") #'dc4ever/rg-restrict-type)))
 
+(with-eval-after-load 'paredit
+  (global-set-key (kbd "M-l") #'paredit-forward-slurp-sexp)
+  (global-set-key (kbd "M-h") #'paredit-forward-barf-sexp))
+
+(global-set-key (kbd "C-SPC") #'toggle-input-method)
+(global-set-key (kbd "C-x C-p") #'previous-buffer)
+(global-set-key (kbd "C-x C-n") #'next-buffer)
+
+(with-eval-after-load 'prog-mode
+  (defun dc4ever//prev-or-next-line-empty-p (num)
+    (save-excursion
+      (if (> num 0) (next-logical-line) (previous-logical-line))
+      (beginning-of-line)
+      (looking-at-p "[[:space:]]*$")))
+
+  (defun dc4ever//meta (num)
+    "Go up or down!!!"
+    (unless (dc4ever//prev-or-next-line-empty-p num)
+      (save-excursion
+        (let ((a (point-at-bol))
+              (b (point-at-eol))
+              c d)
+          (if (> num 0) (next-logical-line) (previous-logical-line))
+          (setq c (point-at-bol)
+                d (point-at-eol))
+          (transpose-regions a b c d)))))
+
+  (define-key global-map (kbd "M-k")
+    (lambda nil (interactive) (dc4ever//meta -1)))
+  (define-key global-map (kbd "M-j")
+    (lambda nil (interactive) (dc4ever//meta 1))))
+
+(with-eval-after-load 'help-mode
+  (add-hook
+   'help-mode-hook
+   (lambda nil (define-key evil-motion-state-local-map (kbd "K")
+            #'elisp-slime-nav-describe-elisp-thing-at-point))))
+
 (provide 'dc4ever-kbd)
+
