@@ -39,7 +39,7 @@
 (with-eval-after-load 'dired
   (treemacs-icons-dired-mode))
 
-(add-to-list 'auto-mode-alist '("\\.ccls\\'" . shell-script-mode))
+(add-to-list 'auto-mode-alist '("\\.ccls\\'" . conf-mode))
 (add-to-list 'auto-mode-alist '("\\.cu[h]*\\'" . c++-mode))
 (add-to-list 'auto-mode-alist '("\\.cl\\'" . c-mode))
 
@@ -49,7 +49,8 @@
 (with-eval-after-load 'company
   (setq company-minimum-prefix-length 1)
   (global-company-mode 1)
-  )
+  (unbind-key (kbd "C-n") company-active-map)
+  (unbind-key (kbd "C-p") company-active-map))
 
 (run-with-idle-timer 17 nil #'display-time-mode 1)
 (run-with-idle-timer 1 nil #'require 'eaf)
@@ -155,6 +156,7 @@ set `window-point-insertion-type' to t locally."
   (apply func r)
   (with-current-buffer (messages-buffer)
     (evil-insert-state 1)
+    (goto-char (point-max))
     (setq-local window-point-insertion-type t)))
 
 (advice-add #'spacemacs/switch-to-messages-buffer

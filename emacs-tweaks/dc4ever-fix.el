@@ -9,6 +9,7 @@
 (eval-when-compile
   (require 'url)
   (require 'lsp-completion)
+  (require 'cl-lib)
   (require 'projectile)
   (require 'zeal-at-point)
   (require 'counsel-projectile)
@@ -140,5 +141,80 @@ has already fixed the very issue."
   (require 'eaf-all-the-icons))
 
 (persp-mode 1)
+
+(with-eval-after-load 'parrot
+  (defvar dc4ever--parrot-choices nil
+    "Why do you need me? `parrot-mode'?!! Shouldn't thou have done it thyself?!")
+  (let* ((fname #'parrot-set-parrot-type)
+         (fn (find-lisp-object-file-name fname nil))
+         (buf (create-file-buffer fn)))
+    (with-current-buffer buf (insert-file-contents-literally fn))
+    (setq dc4ever--parrot-choices
+          (catch 'pr
+            (let (sexp)
+              (while t
+                (setq sexp (read buf))
+                (when (and
+                       (eq 'defun (car sexp))
+                       (eq fname (cadr sexp)))
+                  (setq sexp (nth 4 sexp))
+                  (cl-assert
+                   (eq 'interactive (car sexp)))
+                  (throw 'pr (cadr (caddr (cadadr sexp)))))))))
+    (setq dc4ever--parrot-choices (cons dc4ever--parrot-choices
+                                        (length dc4ever--parrot-choices)))
+    (kill-buffer buf)
+    (cl-assert (member 'nyan (car dc4ever--parrot-choices))))
+
+  (spacemacs/set-leader-keys "on" #'parrot-rotate-next-word-at-point)
+  (spacemacs/set-leader-keys "op" #'parrot-rotate-prev-word-at-point)
+
+  (setq parrot-num-rotations nil)
+
+  (defvar dc4ever--parrot-cache nil "Cache regexp for `parrot'.")
+
+  (defun parrot-rotate-convert-rotations-to-regexp (rotations)
+    "Return regular expressions for all entries in ROTATIONS.
+ROTATIONS contains lists of strings with optional :lower, :caps, or :upcase
+labels.  The regular expression returned checks for a match with any one of the
+strings in the entire rotation list."
+    (if dc4ever--parrot-cache dc4ever--parrot-cache
+      (setq dc4ever--parrot-cache
+            (regexp-opt
+             (cl-mapcan
+              (lambda (entry)
+                (let ((entry-rotations
+                       (append
+                        (unless (and (plist-member entry :lower) (not (plist-get entry :lower)))
+                          (plist-get entry :rot))
+                        (when (plist-get entry :caps)
+                          (mapcar #'capitalize (plist-get entry :rot)))
+                        (when (plist-get entry :upcase)
+                          (mapcar #'upcase (plist-get entry :rot))))))
+                  (unless entry-rotations
+                    (error "%S has no rotations" (plist-get entry :rot)))
+                  (unless (> (length (plist-get entry :rot)) 1)
+                    (error "%S must have at least two rotations" (plist-get entry :rot)))
+                  entry-rotations))
+              rotations) 'words))))
+
+  (run-with-idle-timer
+   7 :repeat
+   (lambda nil
+     (let ((cons dc4ever--parrot-choices))
+       (parrot-set-parrot-type
+        (nth (random (cdr cons)) (car cons))
+        (or
+         (derived-mode-p 'prog-mode)
+         (minibufferp)))))))
+
+(run-with-idle-timer 3 nil #'parrot-mode 1)
+
+(with-eval-after-load 'info
+  (add-hook
+   'Info-mode-hook
+   (lambda nil
+     (define-key evil-motion-state-local-map (kbd "n") #'Info-next)
+     (define-key evil-motion-state-local-map (kbd "p") #'Info-prev))))
 
 (provide 'dc4ever-fix)

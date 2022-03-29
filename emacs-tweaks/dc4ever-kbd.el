@@ -22,7 +22,11 @@
 (spacemacs/set-leader-keys "oh" 'dc4ever/toggle-write-hook)
 (spacemacs/set-leader-keys "qr" 'dc4ever/disable-restart)
 (spacemacs/set-leader-keys "qR" 'dc4ever/disable-restart)
-(spacemacs/set-leader-keys "or" 'lisp-state-eval-sexp-end-of-line)
+(spacemacs/set-leader-keys "or"
+  (lambda nil
+    (interactive)
+    (redshift-indent-mode -1)
+    (redshift-indent-mode 2)))
 (spacemacs/set-leader-keys "ow" 'sunshine-forecast)
 (spacemacs/set-leader-keys "ot" 'dc4ever/org)
 (spacemacs/set-leader-keys "od" 'zeal-at-point)
