@@ -215,6 +215,7 @@ strings in the entire rotation list."
    'Info-mode-hook
    (lambda nil
      (define-key evil-motion-state-local-map (kbd "n") #'Info-next)
+     (define-key evil-motion-state-local-map (kbd "RET") #'Info-follow-nearest-node)
      (define-key evil-motion-state-local-map (kbd "p") #'Info-prev))))
 
 (provide 'dc4ever-fix)

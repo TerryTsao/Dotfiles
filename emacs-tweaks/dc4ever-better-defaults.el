@@ -122,20 +122,7 @@ as `ivy-call-and-recenter'."
               (electric-indent-local-mode -1))))
 
 (with-eval-after-load 'prog-mode
-  (require 'paredit)
-
-  (defun dc4ever//auto-insert nil
-    "Handle project specific `auto-insert'."
-    (when (boundp 'jiangbin-style)
-      (call-interactively #'evil-insert-state)
-      (when (eq ?h (aref (f-ext buffer-file-name) 0))
-        (insert "\n\n\n")
-        (insert "ifg")
-        (call-interactively #'yas-expand)
-        (yas-exit-all-snippets)
-        (goto-char (point-min)))
-      (insert "cpr")
-      (call-interactively #'yas-expand))))
+  (require 'paredit))
 
 (with-eval-after-load 'text-mode
   (auto-insert-mode 1))

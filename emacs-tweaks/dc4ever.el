@@ -133,4 +133,6 @@ open project root or current directory, depending on ARG value."
   (advice-add #'compilation-find-file
               :filter-args #'dc4ever//comp-ff:advice))
 
+(require 'dc4ever-uniq)
+
 (provide 'dc4ever)
