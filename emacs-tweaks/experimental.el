@@ -3,13 +3,24 @@
 ;; (advice-remove 'company-capf 'dc4ever/capf-wrapper)
 ;; (advice-remove 'company--capf-data 'dc4ever/filter-capf-lsp-retval)
 
-(defun )
-
 🐍
 (aref char-script-table ?🐍)
 (aref char-script-table ?)
 ⃤
 🛆
+
+(let ((s "cudaMemcpy(${1:void *dst}, ${2:const void &s324rc}, ${33:size_t count_34}, ${4:enum cudaMemcpyKind _kind})$0"))
+  (replace-regexp-in-string
+   (rx
+    "${"
+    (group (+ digit))
+    ":"
+    (* (not "}"))
+    " "
+    (* (any "*&"))
+    (group (+ (any alnum "_")) "}"))
+   "${\\1:\\2"
+   s))
 
 (cond ((and (boundp 'once-yas-type)
             (eq once-yas-type 'jiangbin-style))

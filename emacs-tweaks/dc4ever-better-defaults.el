@@ -64,7 +64,9 @@
 ;; (evil-set-initial-state 'vterm-mode 'emacs)
 ;; (evil-set-initial-state 'Custom-mode 'emacs)
 (evil-set-initial-state 'sunshine-mode 'emacs)
+(evil-set-initial-state 'lsp-bridge-ref-mode 'emacs)
 (evil-set-initial-state '2048-mode 'emacs)
+(unbind-key (kbd "C-k") evil-insert-state-map)
 ;; (evil-set-initial-state 'eaf-mode 'emacs)
 
 ;; Set unicode for displaying cards
@@ -208,5 +210,14 @@ when query ipython"
       (apply func r)))
   (advice-add #'undo-tree-save-history
               :around #'dc4ever//undo-tree-shutTheFuckUp))
+
+(defun dc4ever//counsel-rg-advice-jump (func &rest r)
+  (unwind-protect
+      (progn
+        (evil-add-command-properties #'ivy-done :jump t)
+        (apply func r))
+    (evil-remove-command-properties #'ivy-done :jump)))
+(advice-add #'counsel-rg
+            :around #'dc4ever//counsel-rg-advice-jump)
 
 (provide 'dc4ever-better-defaults)

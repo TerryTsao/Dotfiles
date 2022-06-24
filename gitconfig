@@ -4,7 +4,7 @@
     pager = more
 
 [user]
-	name = Xiaoxiang Cao
+	name = caoxiaoxiang
 	email = caoxiaoxiang@xiaomi.com
 
 [alias]
@@ -49,3 +49,5 @@
 # 	proxy = socks5://localhost:50555
 [url "https://github.com/"]
 	insteadOf = git://github.com/
+[init]
+	defaultBranch = master

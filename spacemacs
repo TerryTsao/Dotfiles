@@ -43,12 +43,7 @@ This function should only modify configuration layer settings."
      ivy
      ;; helm
      ;; helpful
-     (python :variables
-             python-backend 'anaconda
-             ;; python-backend 'lsp
-             ;; python-lsp-server 'mspyls
-             ;; python-lsp-git-root "/data/terrytsao/software/python-language-server"
-             )
+     (python :variables python-backend 'lsp python-lsp-server 'pyright)
      ;; ----------------------------------------------------------------
      ;; Example of useful layers you may want to use right away.
      ;; Uncomment some layer names and press <SPC f e R> (Vim style) or
@@ -74,6 +69,7 @@ This function should only modify configuration layer settings."
                       auto-completion-return-key-behavior 'complete
                       auto-completion-tab-key-behavior 'cycle
                       auto-completion-complete-with-key-sequence-delay 0.3
+                      auto-completion-use-company-box t
                       auto-completion-enable-sort-by-usage nil)
      dap
      (c-c++ :variables
@@ -104,9 +100,23 @@ This function should only modify configuration layer settings."
    ;; '(your-package :location "~/path/to/your-package/")
    ;; Also include the dependencies as they will not be resolved automatically.
    dotspacemacs-additional-packages '(
+                                      orderless
+                                      (lsp-bridge
+                                       :location
+                                       "~/data/terrytsao/software/elisp/lsp-bridge/")
                                       parrot
                                       rime
                                       bazel
+                                      (awesome-pair
+                                       :location
+                                       (recipe
+                                        :fetcher github
+                                        :repo "manateelazycat/awesome-pair"))
+                                      (kbd-mode
+                                       :location
+                                       (recipe
+                                        :fetcher github
+                                        :repo "kmonad/kbd-mode"))
                                       redshift-indent
                                       2048-game
                                       groovy-mode
@@ -606,4 +616,5 @@ you should place your code here."
   (require 'dc4ever-better-defaults)
   (require 'dc4ever)
   (require 'dc4ever-kbd)
+  (require 'dc4ever-hack)
   (require 'dc4ever-fix))

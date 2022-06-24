@@ -135,6 +135,8 @@ has already fixed the very issue."
                (prin1-to-string (selected-window)))))
   (advice-add 'eaf--activate-emacs-linux-window :override #'dc4ever//fix-eaf-focus)
   (add-hook 'eaf-mode-hook (lambda nil (defvar rime-show-candidate)
+                             (define-key eaf-mode-map
+                               (kbd "C-c C-SPC") #'toggle-input-method)
                              (setq-local rime-show-candidate 'minibuffer)
                              (call-interactively #'evil-emacs-state)))
   ;; (advice-remove 'eaf--activate-emacs-linux-window #'dc4ever//fix-eaf-focus)
@@ -214,8 +216,18 @@ strings in the entire rotation list."
   (add-hook
    'Info-mode-hook
    (lambda nil
+     (define-key Info-mode-map (kbd "r") #'Info-history-back)
+     (define-key Info-mode-map (kbd "R") #'Info-history-forward)
+     (define-key evil-motion-state-local-map (kbd "L") #'Info-history)
      (define-key evil-motion-state-local-map (kbd "n") #'Info-next)
+     (define-key evil-motion-state-local-map (kbd "M-g") #'Info-goto-node)
      (define-key evil-motion-state-local-map (kbd "RET") #'Info-follow-nearest-node)
      (define-key evil-motion-state-local-map (kbd "p") #'Info-prev))))
+
+(with-eval-after-load 'magit-mode
+  (magit-add-section-hook 'magit-post-display-buffer-hook
+                          (lambda nil
+                            (define-key evil-visual-state-local-map (kbd "s")
+                              #'magit-stage))))
 
 (provide 'dc4ever-fix)
